@@ -1,0 +1,17 @@
+import logo from "../../assets/logo.svg";
+
+function SignContainer({ children, handleMissPassword, isBtnMissPasswordActive, active = true}) {
+    return (
+        <div className="flex flex-col items-center justify-center bg-mediumbeige h-screen p-4">
+            <img src={logo} alt="logo" className="w-28 absolute top-4 left-4" />
+            <section className="flex flex-col items-center justify-center bg-darkbeige rounded-lg p-6 mb-8">
+                {children}
+            </section>
+            {active && (
+                <button className="text-sm text-darkblue underline" onClick={handleMissPassword}>{isBtnMissPasswordActive ? "Voltar" : "Esqueceu sua senha?"}</button>
+            )}
+        </div>
+    );
+}
+
+export default SignContainer;
