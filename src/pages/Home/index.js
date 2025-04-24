@@ -1,30 +1,39 @@
+import { useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
-
 function Home() {
-    const data = [
-        { name: 'Ativo', value: 400 },
-        { name: 'Inativo', value: 300 },
-        { name: 'Pendente', value: 200 },
-        { name: 'Cancelado', value: 100 },
+    const [activeTab, setActiveTab] = useState('casos');
+
+    const casosData = [
+        { name: 'Em análise', value: 400 },
+        { name: 'Concluído', value: 300 },
     ];
 
-    const COLORS = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#6C5CE7'];
+    const evidenciasData = [
+        { name: 'Em andamento', value: 400 },
+        { name: 'Finalizado', value: 300 },
+        { name: 'Arquivado', value: 200 },
+    ];
+
+    const COLORS = ['#FF6B6B', '#4ECDC4', '#FFD93D'];
+
+    const data = activeTab === 'casos' ? casosData : evidenciasData;
+
     return (
         <PlataformContainer>
             <section className="flex-1 bg-stone-800 shadow-xl rounded-lg p-2 w-full flex flex-col items-center">
                 <div className="flex flex-row gap-2 mb-2">
-                    <button className="bg-black text-white font-semibold px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-black transition-all duration-200">
+                    <button className="bg-black text-white font-semibold px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-black transition-all duration-200" onClick={() => setActiveTab('casos')}>
                         Casos
                     </button>
-                    <button className="bg-black text-white font-semibold px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-black transition-all duration-200">
+                    <button className="bg-black text-white font-semibold px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-black transition-all duration-200" onClick={() => setActiveTab('evidencias')}>
                         Evidências
                     </button>
                 </div>
                 <div className="flex flex-col items-center justify-center text-white">
                     <p className="text-3xl font-bold">1000</p>
-                    <p className="text-base">Total de Casos</p>
+                    <p className="text-base">Total de {activeTab === 'casos' ? 'Casos' : 'Evidências'}</p>
                 </div>
                 <PieChart width={330} height={330}>
                     <Pie

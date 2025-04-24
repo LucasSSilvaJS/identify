@@ -36,7 +36,6 @@ function NewCaso() {
         const map = useMap();
 
         useEffect(() => {
-            
             if (coords) {
                 map.setView([coords.latitude, coords.longitude], 13);
             }
@@ -50,6 +49,23 @@ function NewCaso() {
             setPosition([coords.latitude, coords.longitude]);
         }
     }, [coords]);
+
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const newPosition = [position.coords.latitude, position.coords.longitude];
+                    setPosition(newPosition);
+                    setCoords({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+                },
+                (error) => {
+                    console.log("Erro ao obter localização:", error);
+                }
+            );
+        } else {
+            console.log("Geolocalização não disponível");
+        }
+    }, []); 
 
     const [status, setStatus] = useState('Em andamento');
     const [descricao, setDescricao] = useState('');
@@ -82,8 +98,8 @@ function NewCaso() {
                             <label className="text-darkblue font-bold text-sm">Status</label>
                             <select onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]">
                                 <option value="1">Em andamento</option>
-                                <option value="2">Concluído</option>
-                                <option value="3">Cancelado</option>
+                                <option value="2">Finalizado</option>
+                                <option value="3">Arquivado</option>
                             </select>
                         </div>
                     </div>

@@ -20,7 +20,7 @@ function CasoArticle({ id, titulo, descricao, status, dataAbertura, dataConclusa
     function handleShowDetails() {
         setShowDetails(!showDetails);
     }
-    
+
     return (
         <article className="w-full bg-white shadow-md rounded-lg p-6">
             <header className="border-b border-gray-200 pb-4 mb-4">
@@ -89,6 +89,20 @@ function CasoArticle({ id, titulo, descricao, status, dataAbertura, dataConclusa
                         className="text-sm font-medium text-green-600 hover:text-green-800 transition-colors duration-200"
                     >
                         Adicionar Evidências
+                    </Link>
+                </div>
+                <div className="flex gap-2">
+                    <Link
+                        to="/laudos/novo"
+                        className="text-sm font-medium bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 active:bg-purple-800 shadow-md hover:shadow-lg transition-all duration-200 w-fit block text-center"
+                    >
+                        Gerar Laudo
+                    </Link>
+                    <Link
+                        to="/pacientes/novo" 
+                        className="text-sm font-medium text-purple-600 border-2 border-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 active:bg-purple-100 shadow-md hover:shadow-lg transition-all duration-200 w-fit block text-center"
+                    >
+                        Adicionar Paciente
                     </Link>
                 </div>
             </div>
