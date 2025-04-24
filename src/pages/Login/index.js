@@ -1,7 +1,9 @@
 import { useState } from "react";
 import SignContainer from "../../components/SignContainer";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+    const navigate = useNavigate();
 
     //States para o login
     const [email, setEmail] = useState("");
@@ -39,6 +41,7 @@ function Login() {
         validatePassword();
 
         if (isEmailValid === true && isPasswordValid === true && email !== "" && password !== "") {
+            navigate("/home");
             alert("Login realizado com sucesso");
         }
     }
