@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Sistema de Gerenciamento de Casos Forenses
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Sobre o Projeto
+Sistema web desenvolvido para gerenciamento de casos forenses, permitindo o controle de evidências, laudos e pacientes relacionados a cada caso.
 
-## Available Scripts
+## Funcionalidades Principais
 
-In the project directory, you can run:
+### Casos
+- Visualização de casos em análise e concluídos
+- Cadastro de novos casos com detalhes e localização
+- Visualização de estatísticas através de gráficos
 
-### `npm start`
+### Evidências
+- Cadastro de novas evidências
+- Acompanhamento do status (Em andamento, Finalizado, Arquivado)
+- Visualização de estatísticas
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Pacientes
+- Cadastro de pacientes vinculados aos casos
+- Gerenciamento de informações pessoais (Nome, CPF, RG)
+- Controle de status do paciente (Ativo, Inativo, Em Tratamento)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Laudos
+- Geração de laudos técnicos
+- Vinculação com casos específicos
 
-### `npm test`
+## Tecnologias Utilizadas
+- React.js
+- React Router para navegação
+- Recharts para visualização de dados
+- Tailwind CSS para estilização
+- Leaflet para mapas interativos
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Rotas da Aplicação
+- `/` - Login
+- `/cadastro` - Registro de usuário
+- `/home` - Dashboard principal
+- `/casos/novo` - Cadastro de novo caso
+- `/casos` - Visualização de casos
+- `/evidencias/novo` - Cadastro de evidências
+- `/laudos/novo` - Geração de laudos
+- `/pacientes/novo` - Cadastro de pacientes
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Como Rodar o Projeto
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Pré-requisitos
+- Node.js instalado (versão 14 ou superior)
+- NPM (Node Package Manager) ou Yarn
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Passos para Execução
 
-### `npm run eject`
+1. Clone o repositório
+2. Instale as dependências
+3. Configure as variáveis de ambiente
+   - Crie um arquivo `.env` na raiz do projeto
+   - Adicione as variáveis necessárias seguindo o exemplo do `.env.example`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Execute o projeto em modo desenvolvimento
+   ```bash
+   npm run dev
+   # ou
+   yarn dev
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+5. Acesse o projeto
+   - Abra o navegador em `http://localhost:3000`
+   - Faça login com suas credenciais
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Comandos Disponíveis
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Gera build de produção
+- `npm run start` - Inicia o servidor em modo produção
+- `npm run test` - Executa os testes
