@@ -2,6 +2,7 @@ import CasoArticle from "../../components/CasoArticle";
 import PlataformContainer from "../../components/PlataformContainer";
 
 function Caso() {
+
     return ( 
         <PlataformContainer>
             <div className="grid grid-cols-1 gap-6 w-full grid-auto-rows-auto">

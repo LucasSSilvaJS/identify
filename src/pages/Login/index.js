@@ -1,7 +1,9 @@
 import { useState } from "react";
 import SignContainer from "../../components/SignContainer";
+import { useAuth } from "../../contexts/AuthContext";
 
 function Login() {
+    const { login } = useAuth();
 
     //States para o login
     const [email, setEmail] = useState("");
@@ -32,13 +34,14 @@ function Login() {
     }
 
     //Função para o login
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         verifyEmail();
         validatePassword();
 
         if (isEmailValid === true && isPasswordValid === true && email !== "" && password !== "") {
+            await login(email, password);
             alert("Login realizado com sucesso");
         }
     }
