@@ -5,20 +5,29 @@ import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
 import { MdOutlineHome } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { FaSignOutAlt } from "react-icons/fa";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/AuthContext";
 
 function PlataformContainer({ children }) {
+    const { logout } = useContext(AuthContext);
+
+    const handleLogout = () => {
+        logout();
+    };
+
     return (
         <div className="h-screen bg-mediumbeige p-4">
             <div className="mx-auto w-full max-w-screen-lg">
                 <header className="flex items-center justify-between w-full sm:gap-16 sm:flex-row flex-col gap-4 rounded-lg p-4 shadow-lg border border-darkblue bg-darkbeige">
                     <div className="flex items-center justify-between w-full sm:w-auto">
                         <img src={logo} alt="logo" className="w-28" />
-                        <div className="flex items-center gap-2 sm:hidden">
+                        <div className="flex items-center gap-4 sm:hidden">
                             <div className="flex items-center flex-col">
                                 <p className="text-darkblue text-center">João da Silva</p>
                                 <p className="text-darkblue text-sm">Perito</p>
                             </div>
-                            <div className="w-10 h-10 bg-darkblue rounded-full"></div>
+                            <FaSignOutAlt size={20} className="text-darkblue cursor-pointer" onClick={handleLogout}/>
                         </div>
                     </div>
                     
@@ -27,12 +36,12 @@ function PlataformContainer({ children }) {
                         <FaSearch className="text-darkblue absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer" />
                         <LuFilter className="text-darkblue absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer" />
                     </label>
-                    <div className="items-center gap-2 hidden sm:flex">
+                    <div className="items-center gap-4 hidden sm:flex">
                         <div className="flex items-center flex-col">
                             <p className="text-darkblue text-center">João da Silva</p>
                             <p className="text-darkblue text-sm text-center">Perito</p>
                         </div>
-                        <div className="w-10 h-10 bg-darkblue rounded-full"></div>
+                        <FaSignOutAlt size={20} className="text-darkblue cursor-pointer" onClick={handleLogout}/>
                     </div>
                 </header>
                 

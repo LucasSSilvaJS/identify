@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import SignContainer from "../../components/SignContainer";
-import { useAuth } from "../../contexts/AuthContext";
+import { AuthContext } from "../../contexts/AuthContext";
 
 function Login() {
-    const { login } = useAuth();
-
+    //States para o cadastro de usuário
+    const { login } = useContext(AuthContext);
     //States para o login
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -41,8 +41,13 @@ function Login() {
         validatePassword();
 
         if (isEmailValid === true && isPasswordValid === true && email !== "" && password !== "") {
-            await login(email, password);
-            alert("Login realizado com sucesso");
+            try {
+                await login(email, password);
+                alert("Login realizado com sucesso");
+            } catch (error) {
+                console.error("Erro ao realizar login:", error);
+                alert("Erro ao realizar login, tente novamente mais tarde");
+            }
         }
     }
 

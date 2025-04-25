@@ -3,6 +3,7 @@ import PlataformContainer from "../../components/PlataformContainer";
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
 function Home() {
+
     const [activeTab, setActiveTab] = useState('casos');
 
     const casosData = [

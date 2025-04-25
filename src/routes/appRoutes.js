@@ -7,41 +7,50 @@ import Caso from "../pages/Caso";
 import NewEvidencia from "../pages/NewEvidencia";
 import NewLaudo from "../pages/NewLaudo";
 import NewPaciente from "../pages/NewPaciente";
-import ProtectedRoute from "../contexts/ProtectedRoute";
+import {PrivateRoute} from "../contexts/PrivateRoute";
+import { PublicRoute } from "../contexts/PublicRoute";
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/cadastro" element={<Cadastro />} />
+      <Route path="/" element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } />
+      <Route path="/cadastro" element={
+        <PublicRoute>
+          <Cadastro />
+        </PublicRoute>
+      } />
       <Route path="/home" element={
-        <ProtectedRoute>
-          <Home />
-        </ProtectedRoute>
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
       } />
       <Route path="/casos/novo" element={
-        <ProtectedRoute>
+        <PrivateRoute>
           <NewCaso />
-        </ProtectedRoute>
+        </PrivateRoute>
       } />
       <Route path="/casos" element={
-        <ProtectedRoute>
+        <PrivateRoute>
           <Caso />
-        </ProtectedRoute>
+        </PrivateRoute>
       } />
       <Route path="/evidencias/novo" element={
-        <ProtectedRoute>
+        <PrivateRoute>
           <NewEvidencia />
-        </ProtectedRoute>
+        </PrivateRoute>
       } />
       <Route path="/laudos/novo" element={
-        <ProtectedRoute>
+        <PrivateRoute>
           <NewLaudo />
-        </ProtectedRoute>
+        </PrivateRoute>
       } />
       <Route path="/pacientes/novo" element={
-        <ProtectedRoute>
+        <PrivateRoute>
           <NewPaciente />
-        </ProtectedRoute>
+        </PrivateRoute>
       } />
     </Routes>
   );

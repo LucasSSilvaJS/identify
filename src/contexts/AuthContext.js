@@ -1,49 +1,50 @@
-// src/auth/AuthContext.js
-import { createContext, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../api';
-import { useEffect } from 'react';
+import { createContext, useEffect, useState } from "react";
+import api from "../api";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate();
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [authToken, setAuthToken] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     if (token) {
-      navigate('/home');
+      setAuthToken(token);
+      api.defaults.headers.Authorization = `Bearer ${token}`;
     }
-  }, [token, navigate]);
+  }, []);
 
-  // Função de login
   const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const token = response.data.token;
-      localStorage.setItem('token', token);
-      setToken(token);
-      navigate('/home');
-    } catch (err) {
-      console.error('Erro no login', err);
-      alert('Credenciais inválidas');
+      const response = await api.post("/auth/login", { email, password });
+      const { user } = response.data;
+      setAuthToken(user.token);
+      setUser({
+        user: {
+          id: user.id,
+          username: user.name,
+          email: user.email,
+          cargo: user.cargo
+        }
+      });
+      localStorage.setItem("token", user.token);
+      api.defaults.headers.Authorization = `Bearer ${user.token}`;
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  // Função de logout
   const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    navigate('/');
+    setAuthToken(null);
+    setUser(null);
+    localStorage.removeItem("token");
+    api.defaults.headers.Authorization = "";
   };
 
-  // O valor que será acessado por useAuth()
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ authToken, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-// Hook para acessar o contexto
-export const useAuth = () => useContext(AuthContext);
