@@ -1,25 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { getDashboardCasos, getDashboardEvidencias } from "../../services/dashboard.service";
 
 function Home() {
-
     const [activeTab, setActiveTab] = useState('casos');
+    const [dashboardCasos, setDashboardCasos] = useState({});
+    const [dashboardEvidencias, setDashboardEvidencias] = useState({});
 
-    const casosData = [
-        { name: 'Em análise', value: 400 },
-        { name: 'Concluído', value: 300 },
-    ];
+    const casosData = useMemo(() => [
+        { name: 'Em andamento', value: (dashboardCasos?.quantidadeStatus?.['Em andamento'] || 0) },
+        { name: 'Finalizado', value: (dashboardCasos?.quantidadeStatus?.['Finalizado'] || 0) },
+        { name: 'Arquivado', value: (dashboardCasos?.quantidadeStatus?.['Arquivado'] || 0) },
+    ], [dashboardCasos]);
 
-    const evidenciasData = [
-        { name: 'Em andamento', value: 400 },
-        { name: 'Finalizado', value: 300 },
-        { name: 'Arquivado', value: 200 },
-    ];
+    const evidenciasData = useMemo(() => [
+        { name: 'Em análise', value: (dashboardEvidencias?.quantidadeStatus?.['Em análise'] || 0) },
+        { name: 'Concluído', value: (dashboardEvidencias?.quantidadeStatus?.['Concluído'] || 0) },
+    ], [dashboardEvidencias]);
 
     const COLORS = ['#FF6B6B', '#4ECDC4', '#FFD93D'];
 
     const data = activeTab === 'casos' ? casosData : evidenciasData;
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const [dashboardCasos, dashboardEvidencias] = await Promise.all([
+                    getDashboardCasos(),
+                    getDashboardEvidencias()
+                ]);
+                setDashboardCasos(dashboardCasos);
+                setDashboardEvidencias(dashboardEvidencias);
+            } catch (error) {
+                console.error("Erro ao buscar dados do dashboard:", error);
+            }
+        }
+
+        fetchData();
+    }, []);
 
     return (
         <PlataformContainer>
@@ -33,7 +52,7 @@ function Home() {
                     </button>
                 </div>
                 <div className="flex flex-col items-center justify-center text-white">
-                    <p className="text-3xl font-bold">1000</p>
+                    <p className="text-3xl font-bold">{activeTab === 'casos' ? dashboardCasos.quantidadeCasos : dashboardEvidencias.quantidadeEvidencias}</p>
                     <p className="text-base">Total de {activeTab === 'casos' ? 'Casos' : 'Evidências'}</p>
                 </div>
                 <PieChart width={330} height={330}>
@@ -58,3 +77,4 @@ function Home() {
 }
 
 export default Home;
+
