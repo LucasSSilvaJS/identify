@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SignContainer from "../../components/SignContainer";
+import { toast } from 'react-toastify';
 
 function Cadastro() {
     //States para o email e senha do administrador
@@ -63,12 +64,12 @@ function Cadastro() {
         const isPasswordOkay = isPasswordAdminValid === true && passwordAdmin !== "";
 
         if (!isEmailOkay || !isPasswordOkay) {
-            alert("E-mail ou senha inválidos");
+            toast.error("E-mail ou senha inválidos");
             return;
         }
 
         setIsAdmin(true);
-        alert("Autenticação realizada com sucesso");
+        toast.success("Autenticação realizada com sucesso");
         // Limpa todos os campos
         setEmailAdmin("");
         setPasswordAdmin("");
@@ -87,19 +88,19 @@ function Cadastro() {
 
         if (!isEmailOkay || !isPasswordOkay || !isCargoOkay) {
             if (!isEmailOkay) {
-                alert("Por favor, insira um e-mail válido");
+                toast.error("Por favor, insira um e-mail válido");
             }
             if (!isPasswordOkay) {
-                alert("Por favor, insira uma senha válida");
+                toast.error("Por favor, insira uma senha válida");
             }
             if (!isCargoOkay) {
-                alert("Por favor, insira um cargo válido");
+                toast.error("Por favor, insira um cargo válido");
             }
             return;
         }
 
         // Aqui você implementaria a lógica de cadastro com o backend
-        alert("Usuário cadastrado com sucesso!");
+        toast.success("Usuário cadastrado com sucesso!");
 
         // Limpa os campos após o cadastro
         setUserName("");

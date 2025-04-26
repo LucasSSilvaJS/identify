@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { useParams } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 function NewPaciente() {
     const { casoId } = useParams();
@@ -24,10 +25,10 @@ function NewPaciente() {
                 // Implementar chamada à API
             } catch (error) {
                 console.error("Erro ao salvar paciente:", error);
-                alert("Erro ao salvar paciente");
+                toast.error("Erro ao salvar paciente");
             }
         } else {
-            alert('Preencha os campos obrigatórios');
+            toast.warn('Preencha os campos obrigatórios');
         }
     };
 

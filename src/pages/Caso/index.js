@@ -1,41 +1,42 @@
+import { useEffect, useState } from "react";
 import CasoArticle from "../../components/CasoArticle";
 import PlataformContainer from "../../components/PlataformContainer";
+import { getCasos } from "../../services/caso.service";
 
 function Caso() {
+    const [casos, setCasos] = useState([]);
 
-    return ( 
+    useEffect(() => {
+        async function fetchCasos() {
+            const fetchedCasos = await getCasos();
+            if (fetchedCasos) {
+                setCasos(fetchedCasos);
+            }
+        }
+        fetchCasos();
+    }, []);
+
+    return (
         <PlataformContainer>
             <div className="grid grid-cols-1 gap-6 w-full grid-auto-rows-auto">
-                <CasoArticle 
-                    titulo="Caso 1" 
-                    descricao="Descrição do caso 1" 
-                    status="Aberto" 
-                    dataOcorrencia="2021-01-01" 
-                    localizacao="Rua das Flores, 123"
-                    latitude={-23.5505}
-                    longitude={-46.6333}
-                />
-                <CasoArticle 
-                    titulo="Caso 2" 
-                    descricao="Descrição do caso 2" 
-                    status="Aberto" 
-                    dataOcorrencia="2021-01-01" 
-                    localizacao="Av. Paulista, 1000"
-                    latitude={-23.5632}
-                    longitude={-46.6542}
-                />
-                <CasoArticle 
-                    titulo="Caso 3" 
-                    descricao="Descrição do caso 3" 
-                    status="Aberto" 
-                    dataOcorrencia="2021-01-01" 
-                    localizacao="Rua Augusta, 500"
-                    latitude={-23.5489}
-                    longitude={-46.6388}
-                />
+                {casos.map((caso) => (
+                    <CasoArticle
+                        key={caso.id}
+                        id={caso.id}
+                        titulo={caso.titulo}
+                        descricao={caso.descricao}
+                        status={caso.status}
+                        dataAbertura={caso.dataAbertura}
+                        dataConclusao={caso.dataConclusao}
+                        dataOcorrencia={caso.dataOcorrencia}
+                        latitude={caso.localizacao.latitude || 0}
+                        longitude={caso.localizacao.longitude || 0}
+                        localizacao={caso.localizacao ? [caso.localizacao.latitude, caso.localizacao.longitude] : [0, 0]}
+                    />
+                ))}
             </div>
         </PlataformContainer>
-     );
+    );
 }
 
 export default Caso;

@@ -30,8 +30,11 @@ function Home() {
                     getDashboardCasos(),
                     getDashboardEvidencias()
                 ]);
-                setDashboardCasos(dashboardCasos);
-                setDashboardEvidencias(dashboardEvidencias);
+
+                if (dashboardCasos && dashboardEvidencias) {
+                    setDashboardCasos(dashboardCasos);
+                    setDashboardEvidencias(dashboardEvidencias);
+                }
             } catch (error) {
                 console.error("Erro ao buscar dados do dashboard:", error);
             }
@@ -52,7 +55,7 @@ function Home() {
                     </button>
                 </div>
                 <div className="flex flex-col items-center justify-center text-white">
-                    <p className="text-3xl font-bold">{activeTab === 'casos' ? dashboardCasos.quantidadeCasos : dashboardEvidencias.quantidadeEvidencias}</p>
+                    <p className="text-3xl font-bold">{activeTab === 'casos' ? (dashboardCasos?.quantidadeCasos || 0) : (dashboardEvidencias?.quantidadeEvidencias || 0)}</p>
                     <p className="text-base">Total de {activeTab === 'casos' ? 'Casos' : 'Evidências'}</p>
                 </div>
                 <PieChart width={330} height={330}>

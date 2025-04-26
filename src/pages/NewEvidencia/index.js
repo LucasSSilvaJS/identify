@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
+import { toast } from "react-toastify";
 
 function NewEvidencia() {
     const [tipo, setTipo] = useState('');
@@ -22,10 +23,10 @@ function NewEvidencia() {
                 // Implementar chamada à API
             } catch (error) {
                 console.error("Erro ao salvar evidência:", error);
-                alert("Erro ao salvar evidência");
+                toast.error("Erro ao salvar evidência");
             }
         } else {
-            alert('Preencha todos os campos obrigatórios');
+            toast.warn('Preencha todos os campos obrigatórios');
         }
     };
 

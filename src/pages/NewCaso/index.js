@@ -2,16 +2,19 @@ import { useEffect, useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { getCoordinatesFromAddress } from "../../utils/getLocation";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { toast } from "react-toastify";
 
 import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
+import { createCaso } from "../../services/caso.service";
 
 function NewCaso() {
+
     const [inputLocation, setInputLocation] = useState('');
     const [coords, setCoords] = useState(null);
     const [position, setPosition] = useState([-23.5505, -46.6333]);
+    const [loading, setLoading] = useState(false);
 
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
@@ -20,15 +23,18 @@ function NewCaso() {
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
         shadowSize: [41, 41],
-      });
+    });
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const result = await getCoordinatesFromAddress(inputLocation);
             setCoords(result);
         } catch (err) {
-            alert('Erro ao buscar localização');
+            toast.error('Erro ao buscar localização');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -65,7 +71,7 @@ function NewCaso() {
         } else {
             console.log("Geolocalização não disponível");
         }
-    }, []); 
+    }, []);
 
     const [status, setStatus] = useState('Em andamento');
     const [descricao, setDescricao] = useState('');
@@ -74,12 +80,33 @@ function NewCaso() {
     const [dataConclusao, setDataConclusao] = useState('');
     const [dataOcorrencia, setDataOcorrencia] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (coords && status && descricao && titulo && dataAbertura && dataConclusao && dataOcorrencia) {
-            console.log(status, descricao, titulo, dataAbertura, dataConclusao, dataOcorrencia, coords);
+        setLoading(true);
+        if (coords && status && descricao && titulo && dataAbertura && dataOcorrencia) {
+            await createCaso({
+                titulo,
+                descricao,
+                status,
+                dataAbertura,
+                dataConclusao,
+                dataOcorrencia,
+                localizacao: {
+                    latitude: coords.latitude, longitude: coords.longitude
+                }
+            })
+            .then(() => {
+                toast.success('Caso criado com sucesso');
+            })
+            .catch((err) => {
+                toast.error('Erro ao criar caso');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
         } else {
-            alert('Preencha todos os campos');
+            toast.error('Preencha todos os campos');
+            setLoading(false);
         }
     }
 
@@ -128,7 +155,9 @@ function NewCaso() {
                         <label className="text-darkblue font-bold text-sm">Localização</label>
                         <div className="flex gap-2 flex-col sm:flex-row">
                             <input type="text" value={inputLocation} onChange={(e) => setInputLocation(e.target.value)} className="flex-1 px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" placeholder="Digite o endereço" />
-                            <button onClick={handleSearch} className="bg-darkblue text-white font-bold text-sm p-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 min-w-[150px]">Buscar Localização</button>
+                            <button onClick={handleSearch} className="bg-darkblue text-white font-bold text-sm p-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 min-w-[150px]">
+                                {loading ? 'Carregando...' : 'Buscar Localização'}
+                            </button>
                         </div>
                     </div>
 
@@ -147,7 +176,9 @@ function NewCaso() {
                         </MapContainer>
                     </div>
 
-                    <button className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" onClick={handleSubmit}>Salvar Caso</button>
+                    <button className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" onClick={handleSubmit}>
+                        {loading ? 'Salvando...' : 'Salvar Caso'}
+                    </button>
                 </form>
             </section>
         </PlataformContainer>
@@ -155,3 +186,4 @@ function NewCaso() {
 }
 
 export default NewCaso;
+

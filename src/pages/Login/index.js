@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import SignContainer from "../../components/SignContainer";
 import { AuthContext } from "../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 function Login() {
     //States para o cadastro de usuário
@@ -30,7 +31,6 @@ function Login() {
         } else {
             setIsPasswordValid(true);
         }
-
     }
 
     //Função para o login
@@ -43,10 +43,10 @@ function Login() {
         if (isEmailValid === true && isPasswordValid === true && email !== "" && password !== "") {
             try {
                 await login(email, password);
-                alert("Login realizado com sucesso");
+                toast.success("Login realizado com sucesso");
             } catch (error) {
                 console.error("Erro ao realizar login:", error);
-                alert("Erro ao realizar login, tente novamente mais tarde");
+                toast.error("Erro ao realizar login, tente novamente mais tarde");
             }
         }
     }
@@ -66,9 +66,9 @@ function Login() {
     function handleSubmitMissPassword(e) {
         e.preventDefault();
         if (validateEmail()) {
-            alert("Link de recuperação de senha enviado para o seu e-mail");
+            toast.success("Link de recuperação de senha enviado para o seu e-mail");
         } else {
-            alert("E-mail inválido");
+            toast.error("E-mail inválido");
         }
     }
 
@@ -107,3 +107,4 @@ function Login() {
 }
 
 export default Login;
+

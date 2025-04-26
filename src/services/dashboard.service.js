@@ -5,7 +5,7 @@ export const getDashboardCasos = async () => {
         const response = await api.get('/dashboard/casos');
         return response.data;
     } catch (error) {
-        console.error("Erro ao buscar dashboard:", error);
+        console.error("Erro ao buscar dashboard: ", error);
     }
 }
 
@@ -14,6 +14,6 @@ export const getDashboardEvidencias = async () => {
         const response = await api.get('/dashboard/evidencias');
         return response.data;
     } catch (error) {
-        console.error("Erro ao buscar dashboard:", error);
+        console.error("Erro ao buscar dashboard: ", error);
     }
 }

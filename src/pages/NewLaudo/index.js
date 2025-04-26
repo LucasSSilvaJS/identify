@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
+import { toast } from "react-toastify";
 
 function NewLaudo() {
     const [titulo, setTitulo] = useState('');
@@ -27,10 +28,10 @@ function NewLaudo() {
                 // Implementar chamada à API
             } catch (error) {
                 console.error("Erro ao salvar laudo:", error);
-                alert("Erro ao salvar laudo");
+                toast.error("Erro ao salvar laudo");
             }
         } else {
-            alert('Preencha todos os campos obrigatórios');
+            toast.warn('Preencha todos os campos obrigatórios');
         }
     };
 
