@@ -104,7 +104,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                         Gerar Laudo
                     </Link>
                     <Link
-                        to="/pacientes/novo" 
+                        to={`/pacientes/novo/${casoId}`} 
                         className="text-sm font-medium text-purple-600 border-2 border-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 active:bg-purple-100 shadow-md hover:shadow-lg transition-all duration-200 w-fit block text-center"
                     >
                         Adicionar Paciente

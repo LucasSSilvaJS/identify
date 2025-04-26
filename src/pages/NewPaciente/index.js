@@ -2,6 +2,7 @@ import { useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { useParams } from "react-router-dom";
 import { toast } from 'react-toastify';
+import api from "../../api";
 
 function NewPaciente() {
     const { casoId } = useParams();
@@ -9,6 +10,7 @@ function NewPaciente() {
     const [cpf, setCpf] = useState('');
     const [rg, setRg] = useState('');
     const [status, setStatus] = useState('Ativo');
+    const [disableFields, setDisableFields] = useState(true);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,8 +23,8 @@ function NewPaciente() {
                     status,
                     caso: casoId
                 };
-                console.log(pacienteData);
-                // Implementar chamada à API
+                await api.post('/pacientes', pacienteData);
+                toast.success('Paciente salvo com sucesso');
             } catch (error) {
                 console.error("Erro ao salvar paciente:", error);
                 toast.error("Erro ao salvar paciente");
@@ -37,14 +39,20 @@ function NewPaciente() {
             <section className="flex-1 shadow-xl bg-white rounded-lg p-6 w-full flex flex-col items-center">
                 <h1 className="text-darkblue font-bold text-2xl mb-6">Novo Paciente</h1>
                 <hr className="w-full border-darkblue border mb-6" />
+                <div className="bg-blue-100 p-4 rounded-md shadow-sm mb-4">
+                    <p className="text-sm font-medium text-darkblue">
+                        ⚠ O importante é gerar o id de paciente e vincular ao caso, portanto os campos de CPF, RG e Status podem ser alterados posteriormente.
+                    </p>
+                </div>
                 <form className="w-full flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Nome</label>
                         <input 
                             onChange={(e) => setNome(e.target.value)} 
                             type="text" 
-                            className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" 
+                            className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                             placeholder="Digite o nome do paciente"
+                            disabled={disableFields}
                         />
                     </div>
 
@@ -54,8 +62,9 @@ function NewPaciente() {
                             <input 
                                 onChange={(e) => setCpf(e.target.value)} 
                                 type="text" 
-                                className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" 
+                                className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder="Digite o CPF"
+                                disabled={disableFields}
                             />
                         </div>
 
@@ -64,8 +73,9 @@ function NewPaciente() {
                             <input 
                                 onChange={(e) => setRg(e.target.value)} 
                                 type="text" 
-                                className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" 
+                                className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder="Digite o RG"
+                                disabled={disableFields}
                             />
                         </div>
                     </div>
@@ -82,6 +92,16 @@ function NewPaciente() {
                         </select>
                     </div>
 
+                    <div className="flex items-center gap-2">
+                        <input 
+                            type="checkbox" 
+                            className="h-4 w-4 rounded-lg border-darkblue bg-lightbeige"
+                            checked={!disableFields}
+                            onChange={(e) => setDisableFields(!e.target.checked)}
+                        />
+                        <label className="text-darkblue font-bold text-sm">Habilitar campos não obrigatórios</label>
+                    </div>
+
                     <button 
                         className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" 
                         onClick={handleSubmit}
@@ -95,3 +115,4 @@ function NewPaciente() {
 }
 
 export default NewPaciente;
+

@@ -47,7 +47,7 @@ function AppRoutes() {
           <NewLaudo />
         </PrivateRoute>
       } />
-      <Route path="/pacientes/novo" element={
+      <Route path="/pacientes/novo/:casoId" element={
         <PrivateRoute>
           <NewPaciente />
         </PrivateRoute>
