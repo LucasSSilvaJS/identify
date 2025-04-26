@@ -21,8 +21,8 @@ function Caso() {
             <div className="grid grid-cols-1 gap-6 w-full grid-auto-rows-auto">
                 {casos.map((caso) => (
                     <CasoArticle
-                        key={caso.id}
-                        id={caso.id}
+                        key={caso._id}
+                        id={caso._id}
                         titulo={caso.titulo}
                         descricao={caso.descricao}
                         status={caso.status}
