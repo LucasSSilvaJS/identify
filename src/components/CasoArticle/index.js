@@ -5,7 +5,7 @@ import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude }) {
+function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId }) {
     const [showDetails, setShowDetails] = useState(false);
 
     const customIcon = new L.Icon({
@@ -90,7 +90,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                         {showDetails ? 'Ocultar Detalhes' : 'Ver Detalhes'}
                     </button>
                     <Link
-                        to="/evidencias/novo"
+                        to={`/evidencias/novo/${casoId}`}
                         className="text-sm font-medium text-green-600 hover:text-green-800 transition-colors duration-200"
                     >
                         Adicionar Evidências

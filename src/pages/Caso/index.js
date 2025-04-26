@@ -23,6 +23,7 @@ function Caso() {
                     <CasoArticle
                         key={caso._id}
                         id={caso._id}
+                        casoId={caso._id}
                         titulo={caso.titulo}
                         descricao={caso.descricao}
                         status={caso.status}

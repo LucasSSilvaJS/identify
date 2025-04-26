@@ -21,12 +21,10 @@ export const AuthProvider = ({ children }) => {
       const { user } = response.data;
       setAuthToken(user.token);
       setUser({
-        user: {
           id: user.id,
           username: user.name,
           email: user.email,
           cargo: user.cargo
-        }
       });
       localStorage.setItem("token", user.token);
       api.defaults.headers.Authorization = `Bearer ${user.token}`;
