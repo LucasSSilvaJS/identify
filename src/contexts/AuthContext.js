@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
       setAuthToken(user.token);
       const userData = {
         id: user.id,
-        username: user.name,
+        username: user.username,
         email: user.email,
         cargo: user.cargo
       };

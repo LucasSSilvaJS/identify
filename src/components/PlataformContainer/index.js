@@ -10,7 +10,7 @@ import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 
 function PlataformContainer({ children }) {
-    const { logout } = useContext(AuthContext);
+    const { logout, user } = useContext(AuthContext);
 
     const handleLogout = () => {
         logout();
@@ -24,13 +24,13 @@ function PlataformContainer({ children }) {
                         <img src={logo} alt="logo" className="w-28" />
                         <div className="flex items-center gap-4 sm:hidden">
                             <div className="flex items-center flex-col">
-                                <p className="text-darkblue text-center">João da Silva</p>
-                                <p className="text-darkblue text-sm">Perito</p>
+                                <p className="text-darkblue text-center">{user.username}</p>
+                                <p className="text-darkblue text-sm">{user.cargo}</p>
                             </div>
-                            <FaSignOutAlt size={20} className="text-darkblue cursor-pointer" onClick={handleLogout}/>
+                            <FaSignOutAlt size={20} className="text-darkblue cursor-pointer" onClick={handleLogout} />
                         </div>
                     </div>
-                    
+
                     <label id="search" className="relative w-full sm:w-1/2 h-10">
                         <input type="text" placeholder="Buscar" className="w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0" />
                         <FaSearch className="text-darkblue absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer" />
@@ -38,13 +38,13 @@ function PlataformContainer({ children }) {
                     </label>
                     <div className="items-center gap-4 hidden sm:flex">
                         <div className="flex items-center flex-col">
-                            <p className="text-darkblue text-center">João da Silva</p>
-                            <p className="text-darkblue text-sm text-center">Perito</p>
+                            <p className="text-darkblue text-center">{user.username}</p>
+                            <p className="text-darkblue text-sm text-center">{user.cargo}</p>
                         </div>
-                        <FaSignOutAlt size={20} className="text-darkblue cursor-pointer" onClick={handleLogout}/>
+                        <FaSignOutAlt size={20} className="text-darkblue cursor-pointer" onClick={handleLogout} />
                     </div>
                 </header>
-                
+
                 <main className="flex gap-4 mt-4 sm:flex-row flex-col">
                     <aside className="flex sm:flex-col gap-4 sm:gap-12 sm:py-16 sm:w-30 mx-auto sm:mx-0 h-full bg-darkbeige rounded-lg p-4 border-darkblue border">
                         <Link to="/casos" className="flex items-center justify-center gap-1 bg-lightbeige rounded-lg p-2 flex-col sm:h-20 h-16">
