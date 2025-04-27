@@ -11,10 +11,12 @@ function NewPaciente() {
     const [rg, setRg] = useState('');
     const [status, setStatus] = useState('Ativo');
     const [disableFields, setDisableFields] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (status && casoId) {
+            setLoading(true);
             try {
                 const pacienteData = {
                     nome,
@@ -25,9 +27,11 @@ function NewPaciente() {
                 };
                 await api.post('/pacientes', pacienteData);
                 toast.success('Paciente salvo com sucesso');
+                setLoading(false);
             } catch (error) {
                 console.error("Erro ao salvar paciente:", error);
                 toast.error("Erro ao salvar paciente");
+                setLoading(false);
             }
         } else {
             toast.warn('Preencha os campos obrigatórios');
@@ -52,7 +56,7 @@ function NewPaciente() {
                             type="text" 
                             className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                             placeholder="Digite o nome do paciente"
-                            disabled={disableFields}
+                            disabled={disableFields || loading}
                         />
                     </div>
 
@@ -64,7 +68,7 @@ function NewPaciente() {
                                 type="text" 
                                 className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder="Digite o CPF"
-                                disabled={disableFields}
+                                disabled={disableFields || loading}
                             />
                         </div>
 
@@ -75,7 +79,7 @@ function NewPaciente() {
                                 type="text" 
                                 className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder="Digite o RG"
-                                disabled={disableFields}
+                                disabled={disableFields || loading}
                             />
                         </div>
                     </div>
@@ -85,6 +89,7 @@ function NewPaciente() {
                         <select 
                             onChange={(e) => setStatus(e.target.value)} 
                             className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]"
+                            disabled={loading}
                         >
                             <option value="Ativo">Ativo</option>
                             <option value="Inativo">Inativo</option>
@@ -98,15 +103,17 @@ function NewPaciente() {
                             className="h-4 w-4 rounded-lg border-darkblue bg-lightbeige"
                             checked={!disableFields}
                             onChange={(e) => setDisableFields(!e.target.checked)}
+                            disabled={loading}
                         />
                         <label className="text-darkblue font-bold text-sm">Habilitar campos não obrigatórios</label>
                     </div>
 
                     <button 
-                        className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" 
+                        className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
                         onClick={handleSubmit}
+                        disabled={loading}
                     >
-                        Salvar Paciente
+                        {loading ? 'Salvando...' : 'Salvar Paciente'}
                     </button>
                 </form>
             </section>
@@ -115,4 +122,3 @@ function NewPaciente() {
 }
 
 export default NewPaciente;
-

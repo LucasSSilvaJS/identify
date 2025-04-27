@@ -15,6 +15,7 @@ function NewCaso() {
     const [coords, setCoords] = useState(null);
     const [position, setPosition] = useState([-23.5505, -46.6333]);
     const [loading, setLoading] = useState(false);
+    const [loadingLocation, setLoadingLocation] = useState(false);
 
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
@@ -27,14 +28,14 @@ function NewCaso() {
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setLoadingLocation(true);
         try {
             const result = await getCoordinatesFromAddress(inputLocation);
             setCoords(result);
         } catch (err) {
             toast.error('Erro ao buscar localização');
         } finally {
-            setLoading(false);
+            setLoadingLocation(false);
         }
     };
 
@@ -156,7 +157,7 @@ function NewCaso() {
                         <div className="flex gap-2 flex-col sm:flex-row">
                             <input type="text" value={inputLocation} onChange={(e) => setInputLocation(e.target.value)} className="flex-1 px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" placeholder="Digite o endereço" />
                             <button onClick={handleSearch} className="bg-darkblue text-white font-bold text-sm p-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 min-w-[150px]">
-                                {loading ? 'Carregando...' : 'Buscar Localização'}
+                                {loadingLocation ? 'Carregando...' : 'Buscar Localização'}
                             </button>
                         </div>
                     </div>
@@ -186,4 +187,3 @@ function NewCaso() {
 }
 
 export default NewCaso;
-

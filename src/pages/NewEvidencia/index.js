@@ -13,6 +13,7 @@ function NewEvidencia() {
     const [dataColeta, setDataColeta] = useState('');
     const [status, setStatus] = useState('Em análise');
     const [files, setFiles] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,7 +30,7 @@ function NewEvidencia() {
                 formData.append('files', file);
             });
     
-            console.log(formData);
+            setLoading(true);
             try {
                 const response = await api.post('/evidencias', formData, {
                     headers: {
@@ -44,6 +45,8 @@ function NewEvidencia() {
             } catch (error) {
                 console.error("Erro ao criar evidência:", error);
                 toast.error("Erro ao criar evidência");
+            } finally {
+                setLoading(false);
             }
         } else {
             toast.warn('Preencha todos os campos obrigatórios');
@@ -114,8 +117,9 @@ function NewEvidencia() {
                     <button
                         type="submit"
                         className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
+                        disabled={loading}
                     >
-                        Salvar Evidência
+                        {loading ? 'Salvando...' : 'Salvar Evidência'}
                     </button>
                 </form>
             </section>
