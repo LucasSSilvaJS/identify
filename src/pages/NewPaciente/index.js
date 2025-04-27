@@ -18,13 +18,21 @@ function NewPaciente() {
         if (status && casoId) {
             setLoading(true);
             try {
-                const pacienteData = {
-                    nome,
-                    cpf,
-                    rg,
-                    status,
-                    caso: casoId
-                };
+                let pacienteData = {};
+                if (disableFields) {
+                    pacienteData = {
+                        status,
+                        caso: casoId
+                    }
+                }else{
+                    pacienteData = {
+                        nome,
+                        cpf,
+                        rg,
+                        status,
+                        caso: casoId
+                    };
+                }
                 await api.post('/pacientes', pacienteData);
                 toast.success('Paciente salvo com sucesso');
                 setLoading(false);
