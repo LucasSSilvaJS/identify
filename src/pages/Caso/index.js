@@ -37,6 +37,8 @@ function Caso() {
                         longitude={caso.localizacao.longitude || 0}
                         localizacao={caso.localizacao ? [caso.localizacao.latitude, caso.localizacao.longitude] : [0, 0]}
                         fetchCasos={fetchCasos}
+                        evidencia={caso.evidencia}
+                        paciente={caso.paciente}
                     />
                 ))}
             </div>

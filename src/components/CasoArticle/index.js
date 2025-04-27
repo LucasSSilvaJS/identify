@@ -7,7 +7,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
 
-function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, fetchCasos }) {
+function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, fetchCasos, evidencia, paciente }) {
     const [showDetails, setShowDetails] = useState(false);
     const [showOptionsEvidencia, setShowOptionsEvidencia] = useState(false);
     const [showOptionsPaciente, setShowOptionsPaciente] = useState(false);
@@ -112,23 +112,23 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 
                 {showDetails && (
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-                        <div>
+                        <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Status</h3>
                             <p className="text-gray-700">{status}</p>
                         </div>
-                        <div>
+                        <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Localização</h3>
                             <p className="text-gray-700">{formatedLocalizacao}</p>
                         </div>
-                        <div>
+                        <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Data de Abertura</h3>
                             <p className="text-gray-700">{formatedDataAbertura}</p>
                         </div>
-                        <div>
+                        <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Data de Conclusão</h3>
                             <p className="text-gray-700">{formatedDataConclusao}</p>
                         </div>
-                        <div>
+                        <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Data da Ocorrência</h3>
                             <p className="text-gray-700">{formatedDataOcorrencia}</p>
                         </div>
@@ -148,6 +148,38 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                                 </MapContainer>
                             </div>
                         </div>
+                        {evidencia && (
+                            <div className="bg-gray-200 p-6 rounded-lg shadow-md col-span-2 md:col-span-1">
+                                <h3 className="text-xl font-bold text-blue-800 uppercase mb-4">Evidência</h3>
+                                <div className="space-y-2">
+                                    <p className="text-gray-700"><span className="font-semibold">Tipo:</span> {evidencia.tipo}</p>
+                                    <p className="text-gray-700"><span className="font-semibold">Data de Coleta:</span> {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(evidencia.dataColeta))}</p>
+                                    <p className="text-gray-700"><span className="font-semibold">Status:</span> {evidencia.status}</p>
+                                    <p className="text-gray-700"><span className="font-semibold">Anexos:</span></p>
+                                    <ul className="list-disc pl-5 space-y-1">
+                                        {evidencia.urlEvidencia.map((url, index) => (
+                                            <li key={index}>
+                                                <a className="text-blue-500 hover:underline" href={url} target="_blank" rel="noopener noreferrer">
+                                                    Link {index + 1}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+                        {paciente && (
+                            <div className="bg-gray-200 p-6 rounded-lg shadow-md col-span-2 md:col-span-1">
+                                <h3 className="text-xl font-bold text-blue-800 uppercase mb-4">Paciente</h3>
+                                <div className="space-y-2">
+                                    <p className="text-gray-700"><span className="font-semibold">ID:</span> {paciente._id}</p>
+                                    {paciente.nome && <p className="text-gray-700"><span className="font-semibold">Nome:</span> {paciente.nome}</p>}
+                                    {paciente.cpf && <p className="text-gray-700"><span className="font-semibold">CPF:</span> {paciente.cpf}</p>}
+                                    {paciente.rg && <p className="text-gray-700"><span className="font-semibold">RG:</span> {paciente.rg}</p>}
+                                    {paciente.status && <p className="text-gray-700"><span className="font-semibold">Status:</span> {paciente.status}</p>}
+                                </div>
+                            </div>
+                        )}
                     </section>
                 )}
                 <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
@@ -158,7 +190,6 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                         {showDetails ? 'Ocultar Detalhes' : 'Ver Detalhes'}
                     </button>
                 </div>
-
                 <div className="pt-4 border-t border-gray-300 flex gap-4">
                     <div className="relative" ref={evidenciaRef}>
                         <button
@@ -237,3 +268,6 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 }
 
 export default CasoArticle;
+
+
+
