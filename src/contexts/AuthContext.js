@@ -9,8 +9,10 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    const storedUser = localStorage.getItem("user");
+    if (token && storedUser) {
       setAuthToken(token);
+      setUser(JSON.parse(storedUser));
       api.defaults.headers.Authorization = `Bearer ${token}`;
     }
   }, []);
@@ -20,13 +22,15 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post("/auth/login", { email, password });
       const { user } = response.data;
       setAuthToken(user.token);
-      setUser({
-          id: user.id,
-          username: user.name,
-          email: user.email,
-          cargo: user.cargo
-      });
+      const userData = {
+        id: user.id,
+        username: user.name,
+        email: user.email,
+        cargo: user.cargo
+      };
+      setUser(userData);
       localStorage.setItem("token", user.token);
+      localStorage.setItem("user", JSON.stringify(userData));
       api.defaults.headers.Authorization = `Bearer ${user.token}`;
     } catch (error) {
       console.error(error);
@@ -37,6 +41,7 @@ export const AuthProvider = ({ children }) => {
     setAuthToken(null);
     setUser(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     api.defaults.headers.Authorization = "";
   };
 

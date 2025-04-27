@@ -1,12 +1,19 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { toast } from "react-toastify";
+import api from "../../api";
 
-function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId }) {
+function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId }) {
     const [showDetails, setShowDetails] = useState(false);
+    const [showOptionsEvidencia, setShowOptionsEvidencia] = useState(false);
+    const [showOptionsPaciente, setShowOptionsPaciente] = useState(false);
+    const [deletingEvidencia, setDeletingEvidencia] = useState(false);
+    const [deletingPaciente, setDeletingPaciente] = useState(false);
+    const navigate = useNavigate();
 
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
@@ -25,6 +32,50 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
     const formatedDataAbertura = dataAbertura ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataAbertura)) : 'Pendente';
     const formatedDataConclusao = dataConclusao ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataConclusao)) : 'Pendente';
     const formatedDataOcorrencia = dataOcorrencia ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataOcorrencia)) : 'Pendente';
+
+    function handleShowOptionsEvidencia() {
+        setShowOptionsEvidencia(!showOptionsEvidencia);
+        setShowOptionsPaciente(false);
+    }
+
+    function handleShowOptionsPaciente() {
+        setShowOptionsPaciente(!showOptionsPaciente);
+        setShowOptionsEvidencia(false);
+    }
+
+    async function handleDeleteEvidencia() {
+        setDeletingEvidencia(true);
+        try {
+            const response = await api.delete(`/evidencias/${evidenciaId}`);
+            if (response.status === 200) {
+                toast.success('Evidência deletada com sucesso!');
+                navigate('/casos', { replace: true });
+            } else {
+                toast.error('Erro ao deletar evidência');
+            }
+        } catch (error) {
+            toast.error('Erro ao deletar evidência');
+        } finally {
+            setDeletingEvidencia(false);
+        }
+    }
+
+    async function handleDeletePaciente() {
+        setDeletingPaciente(true);
+        try {
+            const response = await api.delete(`/pacientes/${pacienteId}`);
+            if (response.status === 200) {
+                toast.success('Paciente deletado com sucesso!');
+                navigate('/casos', { replace: true });
+            } else {
+                toast.error('Erro ao deletar paciente');
+            }
+        } catch (error) {
+            toast.error('Erro ao deletar paciente');
+        } finally {
+            setDeletingPaciente(false);
+        }
+    }
 
     return (
         <article className="w-full bg-white shadow-md rounded-lg p-6" key={key}>
@@ -81,7 +132,6 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                         </div>
                     </section>
                 )}
-
                 <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
                     <button
                         onClick={handleShowDetails}
@@ -89,26 +139,79 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                     >
                         {showDetails ? 'Ocultar Detalhes' : 'Ver Detalhes'}
                     </button>
-                    <Link
-                        to={`/evidencias/novo/${casoId}`}
-                        className="text-sm font-medium text-green-600 hover:text-green-800 transition-colors duration-200"
-                    >
-                        Adicionar Evidências
-                    </Link>
                 </div>
-                <div className="flex gap-2">
-                    <Link
-                        to="/laudos/novo"
-                        className="text-sm font-medium bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 active:bg-purple-800 shadow-md hover:shadow-lg transition-all duration-200 w-fit block text-center"
-                    >
-                        Gerar Laudo
-                    </Link>
-                    <Link
-                        to={`/pacientes/novo/${casoId}`} 
-                        className="text-sm font-medium text-purple-600 border-2 border-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 active:bg-purple-100 shadow-md hover:shadow-lg transition-all duration-200 w-fit block text-center"
-                    >
-                        Adicionar Paciente
-                    </Link>
+
+                <div className="pt-4 border-t border-gray-300 flex gap-4">
+                    <div className="relative">
+                        <button
+                            onClick={handleShowOptionsEvidencia}
+                            className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
+                        >
+                            Evidência
+                        </button>
+                        {showOptionsEvidencia && (
+                            <div className="absolute z-10 w-48 bg-white shadow-md rounded-lg mt-2">
+                                {evidenciaId ? (
+                                    <>
+                                        <Link
+                                            to={`/evidencias/editar/${evidenciaId}`}
+                                            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                                        >
+                                            Editar
+                                        </Link>
+                                        <button
+                                            onClick={handleDeleteEvidencia}
+                                            className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-100 transition-colors duration-200 flex items-center justify-center"
+                                        >
+                                            {deletingEvidencia ? 'Deletando...' : 'Deletar'}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link
+                                        to={`/evidencias/novo/${casoId}`}
+                                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                                    >
+                                        Criar
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                    <div className="relative">
+                        <button
+                            onClick={handleShowOptionsPaciente}
+                            className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
+                        >
+                            Paciente
+                        </button>
+                        {showOptionsPaciente && (
+                            <div className="absolute z-10 w-48 bg-white shadow-md rounded-lg mt-2">
+                                {pacienteId ? (
+                                    <>
+                                        <Link
+                                            to={`/pacientes/editar/${pacienteId}`}
+                                            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                                        >
+                                            Editar
+                                        </Link>
+                                        <button
+                                            onClick={handleDeletePaciente}
+                                            className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-100 transition-colors duration-200 flex items-center justify-center"
+                                        >
+                                            {deletingPaciente ? 'Deletando...' : 'Deletar'}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link
+                                        to={`/pacientes/novo/${casoId}`}
+                                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                                    >
+                                        Criar
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </article>
