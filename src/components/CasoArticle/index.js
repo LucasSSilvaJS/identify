@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from 'leaflet';
@@ -14,6 +14,9 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
     const [deletingEvidencia, setDeletingEvidencia] = useState(false);
     const [deletingPaciente, setDeletingPaciente] = useState(false);
 
+    const evidenciaRef = useRef(null);
+    const pacienteRef = useRef(null);
+
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
         shadowUrl: markerShadow,
@@ -22,6 +25,22 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
         popupAnchor: [1, -34],
         shadowSize: [41, 41],
     });
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (evidenciaRef.current && !evidenciaRef.current.contains(event.target)) {
+                setShowOptionsEvidencia(false);
+            }
+            if (pacienteRef.current && !pacienteRef.current.contains(event.target)) {
+                setShowOptionsPaciente(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     function handleShowDetails() {
         setShowDetails(!showDetails);
@@ -141,7 +160,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                 </div>
 
                 <div className="pt-4 border-t border-gray-300 flex gap-4">
-                    <div className="relative">
+                    <div className="relative" ref={evidenciaRef}>
                         <button
                             onClick={handleShowOptionsEvidencia}
                             className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
@@ -176,7 +195,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                             </div>
                         )}
                     </div>
-                    <div className="relative">
+                    <div className="relative" ref={pacienteRef}>
                         <button
                             onClick={handleShowOptionsPaciente}
                             className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
@@ -218,6 +237,3 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 }
 
 export default CasoArticle;
-
-
-
