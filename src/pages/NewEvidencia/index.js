@@ -4,10 +4,12 @@ import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useParams } from "react-router-dom";
 import api from "../../api";
+import { useNavigate } from "react-router-dom";
 
 function NewEvidencia() {
     const { casoId } = useParams();
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const [tipo, setTipo] = useState('');
     const [dataColeta, setDataColeta] = useState('');
@@ -17,6 +19,7 @@ function NewEvidencia() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         
         if (tipo && dataColeta && files.length > 0) {
             const formData = new FormData();
@@ -47,10 +50,7 @@ function NewEvidencia() {
                 }
 
                 toast.success(response.data.message);
-                setTipo('');
-                setDataColeta('');
-                setStatus('Em análise');
-                setFiles([]);
+                navigate('/casos');
             } catch (error) {
                 console.error("Erro ao criar evidência:", error);
                 toast.error("Erro ao criar evidência");

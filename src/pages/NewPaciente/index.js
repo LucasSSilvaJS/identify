@@ -3,8 +3,10 @@ import PlataformContainer from "../../components/PlataformContainer";
 import { useParams } from "react-router-dom";
 import { toast } from 'react-toastify';
 import api from "../../api";
+import { useNavigate } from "react-router-dom";
 
 function NewPaciente() {
+    const navigate = useNavigate();
     const { casoId } = useParams();
     const [nome, setNome] = useState('');
     const [cpf, setCpf] = useState('');
@@ -44,6 +46,7 @@ function NewPaciente() {
 
                 toast.success('Paciente salvo com sucesso');
                 setLoading(false);
+                navigate('/casos');
             } catch (error) {
                 console.error("Erro ao salvar paciente:", error);
                 toast.error("Erro ao salvar paciente");

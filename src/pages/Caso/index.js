@@ -6,16 +6,17 @@ import { getCasos } from "../../services/caso.service";
 function Caso() {
     const [casos, setCasos] = useState([]);
 
-    useEffect(() => {
-        async function fetchCasos() {
-            const fetchedCasos = await getCasos();
-            if (fetchedCasos) {
-                setCasos(fetchedCasos);
-            }
+    async function fetchCasos() {
+        const fetchedCasos = await getCasos();
+        if (fetchedCasos) {
+            setCasos(fetchedCasos);
         }
+    }
+
+    useEffect(() => {
         fetchCasos();
     }, []);
-
+    
     return (
         <PlataformContainer>
             <div className="grid grid-cols-1 gap-6 w-full grid-auto-rows-auto">
@@ -35,6 +36,7 @@ function Caso() {
                         latitude={caso.localizacao.latitude || 0}
                         longitude={caso.localizacao.longitude || 0}
                         localizacao={caso.localizacao ? [caso.localizacao.latitude, caso.localizacao.longitude] : [0, 0]}
+                        fetchCasos={fetchCasos}
                     />
                 ))}
             </div>

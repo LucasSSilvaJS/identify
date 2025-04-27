@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -7,13 +7,12 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
 
-function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId }) {
+function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, fetchCasos }) {
     const [showDetails, setShowDetails] = useState(false);
     const [showOptionsEvidencia, setShowOptionsEvidencia] = useState(false);
     const [showOptionsPaciente, setShowOptionsPaciente] = useState(false);
     const [deletingEvidencia, setDeletingEvidencia] = useState(false);
     const [deletingPaciente, setDeletingPaciente] = useState(false);
-    const navigate = useNavigate();
 
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
@@ -49,7 +48,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
             const response = await api.delete(`/evidencias/${evidenciaId}`);
             if (response.status === 200) {
                 toast.success('Evidência deletada com sucesso!');
-                navigate('/casos', { replace: true });
+                fetchCasos();
             } else {
                 toast.error('Erro ao deletar evidência');
             }
@@ -66,7 +65,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
             const response = await api.delete(`/pacientes/${pacienteId}`);
             if (response.status === 200) {
                 toast.success('Paciente deletado com sucesso!');
-                navigate('/casos', { replace: true });
+                fetchCasos();
             } else {
                 toast.error('Erro ao deletar paciente');
             }
@@ -219,4 +218,6 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 }
 
 export default CasoArticle;
+
+
 

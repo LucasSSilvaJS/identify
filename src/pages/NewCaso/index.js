@@ -8,8 +8,11 @@ import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { createCaso } from "../../services/caso.service";
+import { useNavigate } from "react-router-dom";
 
 function NewCaso() {
+
+    const navigate = useNavigate();
 
     const [inputLocation, setInputLocation] = useState('');
     const [coords, setCoords] = useState(null);
@@ -98,6 +101,7 @@ function NewCaso() {
             })
             .then(() => {
                 toast.success('Caso criado com sucesso');
+                navigate('/casos');
             })
             .catch((err) => {
                 toast.error('Erro ao criar caso');
