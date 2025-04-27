@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { useParams } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 function NewPaciente() {
     const navigate = useNavigate();
-    const { casoId } = useParams();
+    const { casoId, pacienteId } = useParams();
     const [nome, setNome] = useState('');
     const [cpf, setCpf] = useState('');
     const [rg, setRg] = useState('');
@@ -17,6 +17,7 @@ function NewPaciente() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (status && casoId) {
             setLoading(true);
             try {
@@ -57,10 +58,67 @@ function NewPaciente() {
         }
     };
 
+    const handleEdit = async (e) => {
+        e.preventDefault();
+
+        if (status) {
+            setLoading(true);
+            try {
+                const pacienteData = {
+                    status
+                };
+
+                if (nome) {
+                    pacienteData.nome = nome;
+                }
+                if (cpf) {
+                    pacienteData.cpf = cpf;
+                }
+                if (rg) {
+                    pacienteData.rg = rg;
+                }
+
+                await api.put(`/pacientes/${pacienteId}`, pacienteData);
+
+                toast.success('Paciente atualizado com sucesso');
+                setLoading(false);
+                navigate('/casos');
+            } catch (error) {
+                console.error("Erro ao atualizar paciente:", error);
+                toast.error("Erro ao atualizar paciente");
+                setLoading(false);
+            }
+        } else {
+            toast.warn('Preencha os campos obrigatórios');
+        }
+    };
+
+    useEffect(() => {
+        const fetchPaciente = async () => {
+            if (pacienteId && !casoId) {
+                try {
+                    const response = await api.get(`/pacientes/${pacienteId}`);
+                    const paciente = response.data;
+                    if(paciente) {
+                        setDisableFields(false);
+                        setNome(paciente.nome);
+                        setCpf(paciente.cpf);
+                        setRg(paciente.rg);
+                        setStatus(paciente.status);
+                    }
+                } catch (error) {
+                    console.error("Erro ao consultar paciente:", error);
+                    toast.error("Erro ao consultar paciente");
+                }
+            }
+        }
+        fetchPaciente();
+    }, []);
+
     return (
         <PlataformContainer>
             <section className="flex-1 shadow-xl bg-white rounded-lg p-6 w-full flex flex-col items-center">
-                <h1 className="text-darkblue font-bold text-2xl mb-6">Novo Paciente</h1>
+                <h1 className="text-darkblue font-bold text-2xl mb-6">{!casoId ? 'Editar' : 'Novo'} Paciente</h1>
                 <hr className="w-full border-darkblue border mb-6" />
                 <div className="bg-blue-100 p-4 rounded-md shadow-sm mb-4">
                     <p className="text-sm font-medium text-darkblue">
@@ -71,6 +129,7 @@ function NewPaciente() {
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Nome</label>
                         <input
+                            value={nome}
                             onChange={(e) => setNome(e.target.value)}
                             type="text"
                             className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -83,6 +142,7 @@ function NewPaciente() {
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">CPF</label>
                             <input
+                                value={cpf}
                                 onChange={(e) => setCpf(e.target.value)}
                                 type="text"
                                 className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -94,6 +154,7 @@ function NewPaciente() {
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">RG</label>
                             <input
+                                value={rg}
                                 onChange={(e) => setRg(e.target.value)}
                                 type="text"
                                 className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -106,6 +167,7 @@ function NewPaciente() {
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Status</label>
                         <select
+                            value={status}
                             onChange={(e) => setStatus(e.target.value)}
                             className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]"
                             disabled={loading}
@@ -127,13 +189,24 @@ function NewPaciente() {
                         <label className="text-darkblue font-bold text-sm">Habilitar campos não obrigatórios</label>
                     </div>
 
-                    <button
-                        className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
-                        onClick={handleSubmit}
-                        disabled={loading}
-                    >
-                        {loading ? 'Salvando...' : 'Salvar Paciente'}
-                    </button>
+                    {casoId && (
+                        <button
+                            className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
+                            onClick={handleSubmit}
+                            disabled={loading}
+                        >
+                            {loading ? 'Salvando...' : 'Salvar Paciente'}
+                        </button>
+                    )}
+                    {!casoId && (
+                        <button
+                            className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
+                            onClick={handleEdit}
+                            disabled={loading}
+                        >
+                            {loading ? 'Editando...' : 'Editar Paciente'}
+                        </button>
+                    )}
                 </form>
             </section>
         </PlataformContainer>

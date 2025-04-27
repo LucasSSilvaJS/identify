@@ -7,7 +7,7 @@ import Caso from "../pages/Caso";
 import NewEvidencia from "../pages/NewEvidencia";
 import NewLaudo from "../pages/NewLaudo";
 import NewPaciente from "../pages/NewPaciente";
-import {PrivateRoute} from "../contexts/PrivateRoute";
+import { PrivateRoute } from "../contexts/PrivateRoute";
 import { PublicRoute } from "../contexts/PublicRoute";
 function AppRoutes() {
   return (
@@ -23,9 +23,9 @@ function AppRoutes() {
         </PublicRoute>
       } />
       <Route path="/home" element={
-          <PrivateRoute>
-            <Home />
-          </PrivateRoute>
+        <PrivateRoute>
+          <Home />
+        </PrivateRoute>
       } />
       <Route path="/casos/novo" element={
         <PrivateRoute>
@@ -42,12 +42,22 @@ function AppRoutes() {
           <NewEvidencia />
         </PrivateRoute>
       } />
+      <Route path="/evidencias/editar/:evidenciaId" element={
+        <PrivateRoute>
+          <NewEvidencia />
+        </PrivateRoute>
+      } />
       <Route path="/laudos/novo" element={
         <PrivateRoute>
           <NewLaudo />
         </PrivateRoute>
       } />
       <Route path="/pacientes/novo/:casoId" element={
+        <PrivateRoute>
+          <NewPaciente />
+        </PrivateRoute>
+      } />
+      <Route path="/pacientes/editar/:pacienteId" element={
         <PrivateRoute>
           <NewPaciente />
         </PrivateRoute>

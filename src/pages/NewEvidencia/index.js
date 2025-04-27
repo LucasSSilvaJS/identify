@@ -7,6 +7,7 @@ import api from "../../api";
 import { useNavigate } from "react-router-dom";
 
 function NewEvidencia() {
+
     const { casoId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -20,7 +21,6 @@ function NewEvidencia() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        
         if (tipo && dataColeta && files.length > 0) {
             const formData = new FormData();
             formData.append('tipo', tipo);
@@ -28,11 +28,11 @@ function NewEvidencia() {
             formData.append('status', status);
             formData.append('caso', casoId);
             formData.append('coletadaPor', user ? user.id : null);
-    
+
             files.forEach(file => {
                 formData.append('files', file);
             });
-    
+
             setLoading(true);
             try {
                 const response = await api.post('/evidencias', formData, {
@@ -60,7 +60,7 @@ function NewEvidencia() {
         } else {
             toast.warn('Preencha todos os campos obrigatórios');
         }
-    };    
+    };
 
     return (
         <PlataformContainer>
