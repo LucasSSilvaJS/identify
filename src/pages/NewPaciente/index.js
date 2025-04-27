@@ -18,22 +18,30 @@ function NewPaciente() {
         if (status && casoId) {
             setLoading(true);
             try {
-                let pacienteData = {};
-                if (disableFields) {
-                    pacienteData = {
-                        status,
-                        caso: casoId
-                    }
-                }else{
-                    pacienteData = {
-                        nome,
-                        cpf,
-                        rg,
-                        status,
-                        caso: casoId
-                    };
+                const pacienteData = {
+                    status,
+                    caso: casoId
+                };
+
+                if (nome) {
+                    pacienteData.nome = nome;
                 }
-                await api.post('/pacientes', pacienteData);
+                if (cpf) {
+                    pacienteData.cpf = cpf;
+                }
+                if (rg) {
+                    pacienteData.rg = rg;
+                }
+
+                const response = await api.post('/pacientes', pacienteData);
+
+                const { paciente } = response.data;
+                const pacienteId = paciente._id;
+                const updateCaso = await api.patch(`/casos/add-paciente`, { idCaso: casoId, idPaciente: pacienteId });
+                if (updateCaso.status !== 200) {
+                    throw new Error('Erro ao atualizar caso');
+                }
+
                 toast.success('Paciente salvo com sucesso');
                 setLoading(false);
             } catch (error) {
@@ -59,9 +67,9 @@ function NewPaciente() {
                 <form className="w-full flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Nome</label>
-                        <input 
-                            onChange={(e) => setNome(e.target.value)} 
-                            type="text" 
+                        <input
+                            onChange={(e) => setNome(e.target.value)}
+                            type="text"
                             className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                             placeholder="Digite o nome do paciente"
                             disabled={disableFields || loading}
@@ -71,9 +79,9 @@ function NewPaciente() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">CPF</label>
-                            <input 
-                                onChange={(e) => setCpf(e.target.value)} 
-                                type="text" 
+                            <input
+                                onChange={(e) => setCpf(e.target.value)}
+                                type="text"
                                 className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder="Digite o CPF"
                                 disabled={disableFields || loading}
@@ -82,9 +90,9 @@ function NewPaciente() {
 
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">RG</label>
-                            <input 
-                                onChange={(e) => setRg(e.target.value)} 
-                                type="text" 
+                            <input
+                                onChange={(e) => setRg(e.target.value)}
+                                type="text"
                                 className={`w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all ${disableFields ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 placeholder="Digite o RG"
                                 disabled={disableFields || loading}
@@ -94,8 +102,8 @@ function NewPaciente() {
 
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Status</label>
-                        <select 
-                            onChange={(e) => setStatus(e.target.value)} 
+                        <select
+                            onChange={(e) => setStatus(e.target.value)}
                             className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]"
                             disabled={loading}
                         >
@@ -106,8 +114,8 @@ function NewPaciente() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <input 
-                            type="checkbox" 
+                        <input
+                            type="checkbox"
                             className="h-4 w-4 rounded-lg border-darkblue bg-lightbeige"
                             checked={!disableFields}
                             onChange={(e) => setDisableFields(!e.target.checked)}
@@ -116,7 +124,7 @@ function NewPaciente() {
                         <label className="text-darkblue font-bold text-sm">Habilitar campos não obrigatórios</label>
                     </div>
 
-                    <button 
+                    <button
                         className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
                         onClick={handleSubmit}
                         disabled={loading}

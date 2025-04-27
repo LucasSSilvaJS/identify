@@ -37,6 +37,15 @@ function NewEvidencia() {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
+
+                const { evidencia } = response.data;
+                const evidenciaId = evidencia._id;
+
+                const updateCaso = await api.patch(`/casos/add-evidencia`, { idCaso: casoId, idEvidencia: evidenciaId });
+                if (updateCaso.status !== 200) {
+                    throw new Error('Erro ao atualizar caso');
+                }
+
                 toast.success(response.data.message);
                 setTipo('');
                 setDataColeta('');
