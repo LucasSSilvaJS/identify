@@ -3,21 +3,28 @@ import { LuFilter } from "react-icons/lu";
 import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
 import { MdOutlineHome } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
-function PlataformContainer({ children, search, setSearch }) {
-    const { logout, user } = useContext(AuthContext);
+function PlataformContainer({ children, search = "", setSearch, showStatusSelect = false, setShowStatusSelect, selectedStatus = "", setSelectedStatus}) {
+    const location = useLocation();
+    const disabled = location.pathname !== "/casos";
 
+    const { logout, user } = useContext(AuthContext);
     const handleSearch = (e) => {
         setSearch(e.target.value);
     };
 
     const handleLogout = () => {
         logout();
+    };
+
+    const handleStatusSelect = (status) => {
+        setSelectedStatus(status);
+        setShowStatusSelect(false);
     };
 
     return (
@@ -36,9 +43,20 @@ function PlataformContainer({ children, search, setSearch }) {
                     </div>
 
                     <label id="search" className="relative w-full sm:w-1/2 h-10">
-                        <input type="text" placeholder="Buscar" className="w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0" value={search} onChange={handleSearch}/>
-                        <IoMdCloseCircleOutline className="text-darkblue absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer" onClick={() => setSearch("")}/>
-                        <LuFilter className="text-darkblue absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer" />
+                        <input disabled={disabled} type="text" placeholder="Buscar" className={`w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0 ${disabled ? "cursor-not-allowed" : ""}`} value={search} onChange={handleSearch}/>
+                        <IoMdCloseCircleOutline className={`text-darkblue absolute right-2 top-1/2 -translate-y-1/2 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`} onClick={disabled ? () => {} : () => setSearch("")}/>
+                        <LuFilter className={`text-darkblue absolute right-8 top-1/2 -translate-y-1/2 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`} onClick={disabled ? () => {} :    () => setShowStatusSelect(!showStatusSelect)}/>
+                        {showStatusSelect && (
+                            <div className="absolute right-0 top-10 bg-lightbeige rounded-lg p-2 shadow-lg z-10">
+                                <select className="w-full px-4 py-2 rounded-lg bg-lightbeige text-darkblue border border-darkblue outline-none" value={selectedStatus} onChange={(e) => handleStatusSelect(e.target.value)}>
+                                    <option value="" disabled>Selecione um status</option>
+                                    <option value="">Todos</option>
+                                    <option value="Em andamento">Em andamento</option>
+                                    <option value="Finalizado">Finalizado</option>
+                                    <option value="Arquivado">Arquivado</option>
+                                </select>
+                            </div>
+                        )}
                     </label>
                     <div className="items-center gap-4 hidden sm:flex">
                         <div className="flex items-center flex-col">

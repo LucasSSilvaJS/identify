@@ -6,6 +6,8 @@ import api from "../../api";
 function Caso() {
     const [search, setSearch] = useState("");
     const [casos, setCasos] = useState([]);
+    const [showStatusSelect, setShowStatusSelect] = useState(false);
+    const [selectedStatus, setSelectedStatus] = useState("");
 
     async function fetchCasos() {
         try {
@@ -23,7 +25,7 @@ function Caso() {
     }, [search]);
 
     return (
-        <PlataformContainer search={search} setSearch={setSearch}>
+        <PlataformContainer search={search} setSearch={setSearch} showStatusSelect={showStatusSelect} setShowStatusSelect={setShowStatusSelect} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus}>
             <div className="grid grid-cols-1 gap-6 w-full grid-auto-rows-auto">
                 {casos.length > 0 && casos.map((caso) => (
                     <CasoArticle
