@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, use, useEffect } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 function NewEvidencia() {
 
-    const { casoId } = useParams();
+    const { casoId, evidenciaId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -62,12 +62,82 @@ function NewEvidencia() {
         }
     };
 
+    
+const handleEdit = async (e) => {
+    e.preventDefault();
+
+    if (tipo && dataColeta && files.length > 0) {
+        const formData = new FormData();
+        formData.append('tipo', tipo);
+        formData.append('dataColeta', dataColeta);
+        formData.append('status', status);
+
+        files.forEach(file => {
+            formData.append('files', file);
+        });
+
+        setLoading(true);
+        try {
+            const response = await api.put(`/evidencias/${evidenciaId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            toast.success(response.data.message);
+            navigate('/casos');
+        } catch (error) {
+            console.error("Erro ao editar evidência:", error);
+            toast.error("Erro ao editar evidência");
+        } finally {
+            setLoading(false);
+        }
+    } else {
+        toast.warn('Preencha todos os campos obrigatórios');
+    }
+};
+
+function dateToDatetimeLocal(date) {
+    if (!date) return '';
+    
+    // Se for string, converte para Date primeiro
+    const d = typeof date === 'string' ? new Date(date) : date;
+    
+    // Extrai os componentes da data
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+useEffect(() => {
+    const fetchEvidencia = async () => {
+        if (evidenciaId && !casoId) {
+            try {
+                const response = await api.get(`/evidencias/${evidenciaId}`);
+                const evidencia = response.data;
+                setTipo(evidencia.tipo);
+                setDataColeta(dateToDatetimeLocal(evidencia.dataColeta));
+                setStatus(evidencia.status);
+            } catch (error) {
+                console.error("Erro ao consultar evidência:", error);
+                toast.error("Erro ao consultar evidência");
+            }
+        }
+    }
+
+    fetchEvidencia();
+}, []);
+
     return (
         <PlataformContainer>
             <section className="flex-1 shadow-xl bg-white rounded-lg p-6 w-full flex flex-col items-center">
-                <h1 className="text-darkblue font-bold text-2xl mb-6">Nova Evidência</h1>
+                <h1 className="text-darkblue font-bold text-2xl mb-6">{!casoId ? 'Editar Evidência' : 'Nova Evidência'}</h1>
                 <hr className="w-full border-darkblue border mb-6" />
-                <form onSubmit={handleSubmit} encType="multipart/form-data" className="w-full flex flex-col gap-4">
+                <form onSubmit={!casoId ? handleEdit : handleSubmit} encType="multipart/form-data" className="w-full flex flex-col gap-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Tipo de Evidência</label>
@@ -123,13 +193,24 @@ function NewEvidencia() {
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
-                        disabled={loading}
-                    >
-                        {loading ? 'Salvando...' : 'Salvar Evidência'}
-                    </button>
+                    {casoId && (
+                        <button
+                            type="submit"
+                            className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
+                            disabled={loading}
+                        >
+                            {loading ? 'Salvando...' : 'Salvar Evidência'}
+                        </button>
+                    )}
+                    {!casoId && (
+                        <button
+                            type="submit"
+                            className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4"
+                            disabled={loading}
+                        >
+                            {loading ? 'Editando...' : 'Editar Evidência'}
+                        </button>
+                    )}
                 </form>
             </section>
         </PlataformContainer>
