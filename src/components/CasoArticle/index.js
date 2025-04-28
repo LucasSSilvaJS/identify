@@ -372,6 +372,17 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                                 </div>
                             </div>
                         )}
+                        {laudo && (
+                            <div className="bg-red-200 p-6 rounded-lg shadow-md col-span-2 md:col-span-1">
+                                <h3 className="text-xl font-bold text-red-800 uppercase mb-4">Laudo</h3>
+                                <div className="space-y-2">
+                                    <p className="text-gray-700"><span className="font-semibold">ID:</span> {laudo._id}</p>
+                                    {laudo.titulo && <p className="text-gray-700"><span className="font-semibold">Título:</span> <span className="font-bold">{laudo.titulo}</span></p>}
+                                    {laudo.detalhamento && <p className="text-gray-700"><span className="font-semibold">Detalhamento:</span> {laudo.detalhamento}</p>}
+                                    {laudo.conclusao && <p className="text-gray-700"><span className="font-semibold">Conclusão:</span> {laudo.conclusao}</p>}
+                                </div>
+                            </div>
+                        )}
                     </section>
                 )}
                 <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
