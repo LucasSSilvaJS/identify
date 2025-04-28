@@ -32,7 +32,7 @@ function Caso() {
                         descricao={caso.descricao}
                         status={caso.status}
                         dataAbertura={caso.dataAbertura}
-                        dataConclusao={caso.dataConclusao}
+                        dataFechamento={caso.dataFechamento}
                         dataOcorrencia={caso.dataOcorrencia}
                         latitude={caso.localizacao.latitude || 0}
                         longitude={caso.localizacao.longitude || 0}

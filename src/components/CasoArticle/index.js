@@ -11,7 +11,7 @@ import autoTable from "jspdf-autotable";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, laudoId, fetchCasos, evidencia, paciente, laudo }) {
+function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataFechamento, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, laudoId, fetchCasos, evidencia, paciente, laudo }) {
     const generatePDF = () => {
         // Criar instância do PDF
         const doc = new jsPDF({
@@ -66,7 +66,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                 ['Status', status || 'Não informado'],
                 ['Data de Abertura', formatDate(dataAbertura)],
                 ['Data de Ocorrência', formatDate(dataOcorrencia)],
-                ['Data de Conclusão', formatDate(dataConclusao)],
+                ['Data de Conclusão', formatDate(dataFechamento)],
             ],
             theme: 'grid',
             headStyles: {
@@ -246,7 +246,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 
     const formatedLocalizacao = localizacao ? `${latitude}, ${longitude}` : 'Pendente';
     const formatedDataAbertura = dataAbertura ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataAbertura)) : 'Pendente';
-    const formatedDataConclusao = dataConclusao ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataConclusao)) : 'Pendente';
+    const formatedDataFechamento = dataFechamento ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataFechamento)) : 'Pendente';
     const formatedDataOcorrencia = dataOcorrencia ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(dataOcorrencia)) : 'Pendente';
 
     function handleShowOptionsEvidencia() {
@@ -372,7 +372,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                         </div>
                         <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Data de Conclusão</h3>
-                            <p className="text-gray-700">{formatedDataConclusao}</p>
+                            <p className="text-gray-700">{formatedDataFechamento}</p>
                         </div>
                         <div className="col-span-2 md:col-span-1">
                             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Data da Ocorrência</h3>

@@ -83,7 +83,7 @@ function NewCaso() {
     const [descricao, setDescricao] = useState('');
     const [titulo, setTitulo] = useState('');
     const [dataAbertura, setDataAbertura] = useState('');
-    const [dataConclusao, setDataConclusao] = useState('');
+    const [dataFechamento, setDataFechamento] = useState('');
     const [dataOcorrencia, setDataOcorrencia] = useState('');
 
     const handleSubmit = async (e) => {
@@ -95,7 +95,7 @@ function NewCaso() {
                 descricao,
                 status,
                 dataAbertura,
-                dataConclusao,
+                dataFechamento,
                 dataOcorrencia,
                 localizacao: {
                     latitude: coords.latitude, longitude: coords.longitude
@@ -127,7 +127,7 @@ function NewCaso() {
                     descricao,
                     status,
                     dataAbertura,
-                    dataConclusao,
+                    dataFechamento,
                     dataOcorrencia,
                     localizacao: {
                         latitude: coords.latitude, longitude: coords.longitude
@@ -176,7 +176,7 @@ function NewCaso() {
                     setDescricao(evidencia.descricao);
                     setStatus(evidencia.status);
                     setDataAbertura(dateToDatetimeLocal(evidencia.dataAbertura));
-                    setDataConclusao(dateToDatetimeLocal(evidencia.dataConclusao));
+                    setDataFechamento(dateToDatetimeLocal(evidencia.dataFechamento));
                     setDataOcorrencia(dateToDatetimeLocal(evidencia.dataOcorrencia));
                     setCoords(evidencia.localizacao);
                 } catch (error) {
@@ -221,7 +221,7 @@ function NewCaso() {
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Data de Conclusão</label>
-                            <input value={dataConclusao} onChange={(e) => setDataConclusao(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+                            <input value={dataFechamento} onChange={(e) => setDataFechamento(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Data da Ocorrência</label>
