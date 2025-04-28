@@ -1,5 +1,4 @@
 import logo from "../../assets/logo.svg";
-import { FaSearch } from "react-icons/fa";
 import { LuFilter } from "react-icons/lu";
 import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
@@ -8,6 +7,7 @@ import { Link } from "react-router-dom";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
+import { IoMdCloseCircleOutline } from "react-icons/io";
 
 function PlataformContainer({ children, search, setSearch }) {
     const { logout, user } = useContext(AuthContext);
@@ -37,7 +37,7 @@ function PlataformContainer({ children, search, setSearch }) {
 
                     <label id="search" className="relative w-full sm:w-1/2 h-10">
                         <input type="text" placeholder="Buscar" className="w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0" value={search} onChange={handleSearch}/>
-                        <FaSearch className="text-darkblue absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer" />
+                        <IoMdCloseCircleOutline className="text-darkblue absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer" onClick={() => setSearch("")}/>
                         <LuFilter className="text-darkblue absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer" />
                     </label>
                     <div className="items-center gap-4 hidden sm:flex">
