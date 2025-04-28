@@ -9,8 +9,12 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 
-function PlataformContainer({ children }) {
+function PlataformContainer({ children, search, setSearch }) {
     const { logout, user } = useContext(AuthContext);
+
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
+    };
 
     const handleLogout = () => {
         logout();
@@ -32,7 +36,7 @@ function PlataformContainer({ children }) {
                     </div>
 
                     <label id="search" className="relative w-full sm:w-1/2 h-10">
-                        <input type="text" placeholder="Buscar" className="w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0" />
+                        <input type="text" placeholder="Buscar" className="w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0" value={search} onChange={handleSearch}/>
                         <FaSearch className="text-darkblue absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer" />
                         <LuFilter className="text-darkblue absolute right-8 top-1/2 -translate-y-1/2 cursor-pointer" />
                     </label>

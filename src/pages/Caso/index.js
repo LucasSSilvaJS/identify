@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
 import CasoArticle from "../../components/CasoArticle";
 import PlataformContainer from "../../components/PlataformContainer";
-import { getCasos } from "../../services/caso.service";
+import api from "../../api";
 
 function Caso() {
+    const [search, setSearch] = useState("");
     const [casos, setCasos] = useState([]);
 
     async function fetchCasos() {
-        const fetchedCasos = await getCasos();
-        if (fetchedCasos) {
-            setCasos(fetchedCasos);
+        try {
+            const response = await api.get(`/casos?titulo=${search}`);
+            if (response.status === 200) {
+                setCasos(response.data);
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 
     useEffect(() => {
         fetchCasos();
-    }, []);
-    
+    }, [search]);
+
     return (
-        <PlataformContainer>
+        <PlataformContainer search={search} setSearch={setSearch}>
             <div className="grid grid-cols-1 gap-6 w-full grid-auto-rows-auto">
-                {casos.map((caso) => (
+                {casos.length > 0 && casos.map((caso) => (
                     <CasoArticle
                         key={caso._id}
                         id={caso._id}
@@ -49,3 +54,4 @@ function Caso() {
 }
 
 export default Caso;
+
