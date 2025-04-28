@@ -323,6 +323,9 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataFec
             const response = await api.delete(`/casos/${id}`);
             if (response.status === 200) {
                 toast.success('Caso deletado com sucesso!');
+                if(evidenciaId) handleDeleteEvidencia();
+                if(pacienteId) handleDeletePaciente();
+                if(laudoId) handleDeleteLaudo();
                 fetchCasos();
             } else {
                 toast.error('Erro ao deletar caso');
