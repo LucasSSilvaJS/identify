@@ -18,9 +18,9 @@ function AppRoutes() {
         </PublicRoute>
       } />
       <Route path="/cadastro" element={
-        <PublicRoute>
+        <PrivateRoute>
           <Cadastro />
-        </PublicRoute>
+        </PrivateRoute>
       } />
       <Route path="/home" element={
         <PrivateRoute>
