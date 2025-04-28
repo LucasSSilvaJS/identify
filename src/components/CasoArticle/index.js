@@ -9,7 +9,7 @@ import api from "../../api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, fetchCasos, evidencia, paciente }) {
+function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, laudoId, fetchCasos, evidencia, paciente, laudo }) {
     const generatePDF = () => {
         // Criar instância do PDF
         const doc = new jsPDF({
@@ -172,11 +172,14 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
     const [showDetails, setShowDetails] = useState(false);
     const [showOptionsEvidencia, setShowOptionsEvidencia] = useState(false);
     const [showOptionsPaciente, setShowOptionsPaciente] = useState(false);
+    const [showOptionLaudo, setShowOptionLaudo] = useState(false);
     const [deletingEvidencia, setDeletingEvidencia] = useState(false);
     const [deletingPaciente, setDeletingPaciente] = useState(false);
+    const [deletingLaudo, setDeletingLaudo] = useState(false);
 
     const evidenciaRef = useRef(null);
     const pacienteRef = useRef(null);
+    const laudoRef = useRef(null);
 
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
@@ -194,6 +197,9 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
             }
             if (pacienteRef.current && !pacienteRef.current.contains(event.target)) {
                 setShowOptionsPaciente(false);
+            }
+            if (laudoRef.current && !laudoRef.current.contains(event.target)) {
+                setShowOptionLaudo(false);
             }
         }
 
@@ -214,12 +220,20 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 
     function handleShowOptionsEvidencia() {
         setShowOptionsEvidencia(!showOptionsEvidencia);
+        setShowOptionLaudo(false);
         setShowOptionsPaciente(false);
     }
 
     function handleShowOptionsPaciente() {
         setShowOptionsPaciente(!showOptionsPaciente);
+        setShowOptionLaudo(false);
         setShowOptionsEvidencia(false);
+    }
+
+    function handleShowOptionLaudo() {
+        setShowOptionLaudo(!showOptionLaudo);
+        setShowOptionsEvidencia(false);
+        setShowOptionsPaciente(false);
     }
 
     async function handleDeleteEvidencia() {
@@ -253,6 +267,23 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
             toast.error('Erro ao deletar paciente');
         } finally {
             setDeletingPaciente(false);
+        }
+    }
+
+    async function handleDeleteLaudo() {
+        setDeletingLaudo(true);
+        try {
+            const response = await api.delete(`/laudos/${laudoId}`);
+            if (response.status === 200) {  
+                toast.success('Laudo deletado com sucesso!');
+                fetchCasos();
+            } else {
+                toast.error('Erro ao deletar laudo');
+            }
+        } catch (error) {
+            toast.error('Erro ao deletar laudo');
+        } finally {
+            setDeletingLaudo(false);
         }
     }
 
@@ -422,10 +453,46 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                             </div>
                         )}
                     </div>
+                    <div className="relative" ref={laudoRef}>
+                        <button
+                            onClick={handleShowOptionLaudo}
+                            className="text-sm font-medium text-purple-600 hover:text-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
+                        >
+                            Laudo
+                        </button>
+                        {showOptionLaudo && (
+                            <div className="absolute z-10 w-48 bg-white shadow-md rounded-lg mt-2">
+                                {laudoId ? (
+                                    <>
+                                        <Link
+                                            to={`/laudos/editar/${laudoId}`}
+                                            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                                        >
+                                            Editar
+                                        </Link>
+                                        <button
+                                            onClick={handleDeleteLaudo}
+                                            className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-100 transition-colors duration-200 flex items-center justify-center"
+                                        >
+                                            {deletingLaudo ? 'Deletando...' : 'Deletar'}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link
+                                        to={`/laudos/novo/${casoId}`}
+                                        className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center"
+                                    >
+                                        Criar
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+                    </div>
                     {evidenciaId && pacienteId && (<div>
                         <button
                             className="text-sm font-medium text-white bg-purple-600 hover:bg-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
                             onClick={generatePDF}
+
                         >
                             Gerar relatório
                         </button>
@@ -437,6 +504,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
 }
 
 export default CasoArticle;
+
 
 
 

@@ -26,6 +26,7 @@ function Caso() {
                         id={caso._id}
                         pacienteId={caso?.paciente?._id}
                         evidenciaId={caso?.evidencia?._id}
+                        laudoId={caso?.laudo?._id}
                         casoId={caso._id}
                         titulo={caso.titulo}
                         descricao={caso.descricao}
@@ -39,6 +40,7 @@ function Caso() {
                         fetchCasos={fetchCasos}
                         evidencia={caso.evidencia}
                         paciente={caso.paciente}
+                        laudo={caso.laudo}
                     />
                 ))}
             </div>

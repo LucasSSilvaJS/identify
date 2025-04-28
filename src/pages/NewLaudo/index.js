@@ -1,37 +1,56 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import { toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
+import api from "../../api";
 
 function NewLaudo() {
+    const navigate = useNavigate();
+    const {casoId} = useParams();
+    const {user} = useContext(AuthContext);
     const [titulo, setTitulo] = useState('');
     const [detalhamento, setDetalhamento] = useState('');
     const [conclusao, setConclusao] = useState('');
-    const [parecer, setParecer] = useState({
-        perito: '',
-        evidencia: '',
-        paciente: ''
-    });
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (titulo && detalhamento && conclusao && parecer.perito && parecer.evidencia && parecer.paciente) {
+        setIsLoading(true);
+        if (titulo && detalhamento && conclusao && casoId) {
             try {
                 const laudoData = {
                     titulo,
                     detalhamento,
                     conclusao,
-                    parecer,
+                    parecer: {
+                        caso: casoId
+                    },
                     dataCriacao: new Date(),
-                    peritoResponsavel: parecer.perito
+                    peritoResponsavel: user?.id
                 };
-                console.log(laudoData);
-                // Implementar chamada à API
+                
+                const response = await api.post('/laudos', laudoData);
+                const { laudo } = response.data;
+                const laudoId = laudo._id;
+
+                const updateCaso = await api.patch(`/casos/add-laudo`, { idCaso: casoId, idLaudo: laudoId });
+                if (updateCaso.status !== 200) {
+                    throw new Error('Erro ao atualizar caso');
+                }
+
+                toast.success('Laudo criado com sucesso');
+                navigate('/casos');
+                
             } catch (error) {
                 console.error("Erro ao salvar laudo:", error);
                 toast.error("Erro ao salvar laudo");
+            } finally {
+                setIsLoading(false);
             }
         } else {
             toast.warn('Preencha todos os campos obrigatórios');
+            setIsLoading(false);
         }
     };
 
@@ -49,41 +68,6 @@ function NewLaudo() {
                             className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" 
                             placeholder="Digite o título do laudo"
                         />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="flex flex-col gap-2">
-                            <label className="text-darkblue font-bold text-sm">Perito Responsável</label>
-                            <select 
-                                onChange={(e) => setParecer(prev => ({...prev, perito: e.target.value}))} 
-                                className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]"
-                            >
-                                <option value="">Selecione o perito</option>
-                                {/* Aqui você deve carregar a lista de peritos */}
-                            </select>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <label className="text-darkblue font-bold text-sm">Evidência</label>
-                            <select 
-                                onChange={(e) => setParecer(prev => ({...prev, evidencia: e.target.value}))} 
-                                className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]"
-                            >
-                                <option value="">Selecione a evidência</option>
-                                {/* Aqui você deve carregar a lista de evidências */}
-                            </select>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <label className="text-darkblue font-bold text-sm">Paciente</label>
-                            <select 
-                                onChange={(e) => setParecer(prev => ({...prev, paciente: e.target.value}))} 
-                                className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]"
-                            >
-                                <option value="">Selecione o paciente</option>
-                                {/* Aqui você deve carregar a lista de pacientes */}
-                            </select>
-                        </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -107,8 +91,9 @@ function NewLaudo() {
                     <button 
                         className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" 
                         onClick={handleSubmit}
+                        disabled={isLoading}
                     >
-                        Salvar Laudo
+                        {isLoading ? 'Salvando...' : 'Salvar Laudo'}
                     </button>
                 </form>
             </section>
