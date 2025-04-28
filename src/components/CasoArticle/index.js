@@ -6,8 +6,169 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, fetchCasos, evidencia, paciente }) {
+    const generatePDF = () => {
+        // Criar instância do PDF
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+        });
+
+        // Configurações de estilo
+        const primaryColor = '#2c3e50';
+        const secondaryColor = '#7f8c8d';
+        const fontSizeNormal = 10;
+        const fontSizeLarge = 14;
+        const fontSizeTitle = 18;
+
+        // Função para formatar datas
+        const formatDate = (date) => {
+            if (!date) return 'Não informado';
+            const d = new Date(date);
+            return d.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        };
+
+        // Cabeçalho do documento
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(fontSizeTitle);
+        doc.setTextColor(primaryColor);
+        doc.text('RELATÓRIO DE CASO', 105, 20, { align: 'center' });
+
+        // Linha divisória
+        doc.setDrawColor(primaryColor);
+        doc.line(20, 25, 190, 25);
+
+        // Informações básicas do caso
+        doc.setFontSize(fontSizeLarge);
+        doc.text(`Caso: ${titulo}`, 20, 35);
+        doc.setFontSize(fontSizeNormal);
+        doc.setFont('helvetica', 'normal');
+
+        // Tabela com informações principais
+        autoTable(doc, {
+            startY: 45,
+            head: [['Informação', 'Detalhes']],
+            body: [
+                ['ID do Caso', casoId || 'Não informado'],
+                ['Status', status || 'Não informado'],
+                ['Data de Abertura', formatDate(dataAbertura)],
+                ['Data de Ocorrência', formatDate(dataOcorrencia)],
+                ['Data de Conclusão', formatDate(dataConclusao)],
+            ],
+            theme: 'grid',
+            headStyles: {
+                fillColor: primaryColor,
+                textColor: '#ffffff',
+                fontStyle: 'bold'
+            },
+            margin: { left: 20 }
+        });
+
+        // Descrição do caso
+        doc.setFont('helvetica', 'bold');
+        doc.text('Descrição:', 20, doc.lastAutoTable.finalY + 15);
+        doc.setFont('helvetica', 'normal');
+        const descLines = doc.splitTextToSize(descricao || 'Não informada', 170);
+        doc.text(descLines, 20, doc.lastAutoTable.finalY + 20);
+
+        let finalY = doc.lastAutoTable.finalY + 20 + (descLines.length * 5);
+
+        // Localização (se existir)
+        if (localizacao || (latitude && longitude)) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('Localização:', 20, finalY + 10);
+            doc.setFont('helvetica', 'normal');
+
+            const locBody = [];
+            if (localizacao) locBody.push(['Localização', localizacao]);
+            if (latitude) locBody.push(['Latitude', latitude]);
+            if (longitude) locBody.push(['Longitude', longitude]);
+
+            autoTable(doc, {
+                startY: finalY + 15,
+                body: locBody,
+                theme: 'plain',
+                margin: { left: 20 }
+            });
+            finalY = doc.lastAutoTable.finalY;
+        }
+
+        // Seção de Evidência (se existir)
+        if (evidencia) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(fontSizeLarge);
+            doc.text('Evidência:', 20, finalY + 15);
+            doc.setFontSize(fontSizeNormal);
+
+            autoTable(doc, {
+                startY: finalY + 20,
+                head: [['Informação', 'Detalhes']],
+                body: [
+                    ['Tipo', evidencia.tipo || 'Não informado'],
+                    ['Status', evidencia.status || 'Não informado'],
+                    ['Data de Coleta', formatDate(evidencia.dataColeta)],
+                    ['URLs', evidencia.urlEvidencia?.join('\n') || 'Nenhuma']
+                ],
+                theme: 'grid',
+                headStyles: {
+                    fillColor: primaryColor,
+                    textColor: '#ffffff',
+                    fontStyle: 'bold'
+                },
+                margin: { left: 20 }
+            });
+            finalY = doc.lastAutoTable.finalY;
+        }
+
+        // Seção do Paciente (se existir)
+        if (paciente) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(fontSizeLarge);
+            doc.text('Paciente:', 20, finalY + 15);
+            doc.setFontSize(fontSizeNormal);
+
+            autoTable(doc, {
+                startY: finalY + 20,
+                head: [['Informação', 'Detalhes']],
+                body: [
+                    ['Nome', paciente.nome || 'Não informado'],
+                    ['CPF', paciente.cpf || 'Não informado'],
+                    ['RG', paciente.rg || 'Não informado'],
+                    ['Status', paciente.status || 'Não informado'],
+                    ['ID', paciente._id || pacienteId || 'Não informado']
+                ],
+                theme: 'grid',
+                headStyles: {
+                    fillColor: primaryColor,
+                    textColor: '#ffffff',
+                    fontStyle: 'bold'
+                },
+                margin: { left: 20 }
+            });
+            finalY = doc.lastAutoTable.finalY;
+        }
+
+        // Rodapé
+        doc.setFontSize(10);
+        doc.setTextColor(secondaryColor);
+        doc.text(`Documento gerado em: ${formatDate(new Date())}`, 105, 285, { align: 'center' });
+        doc.text(`ID do Relatório: ${id || key || 'N/A'}`, 105, 290, { align: 'center' });
+
+        // Salvar o PDF
+        doc.save(`Relatorio_Caso_${casoId || titulo || 'sem_identificador'}.pdf`);
+    };
+
     const [showDetails, setShowDetails] = useState(false);
     const [showOptionsEvidencia, setShowOptionsEvidencia] = useState(false);
     const [showOptionsPaciente, setShowOptionsPaciente] = useState(false);
@@ -261,6 +422,14 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                             </div>
                         )}
                     </div>
+                    {evidenciaId && pacienteId && (<div>
+                        <button
+                            className="text-sm font-medium text-white bg-purple-600 hover:bg-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
+                            onClick={generatePDF}
+                        >
+                            Gerar relatório
+                        </button>
+                    </div>)}
                 </div>
             </div>
         </article>
