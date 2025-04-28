@@ -32,6 +32,11 @@ function AppRoutes() {
           <NewCaso />
         </PrivateRoute>
       } />
+      <Route path="/casos/editar/:casoId" element={
+        <PrivateRoute>
+          <NewCaso />
+        </PrivateRoute>
+      } />
       <Route path="/casos" element={
         <PrivateRoute>
           <Caso />

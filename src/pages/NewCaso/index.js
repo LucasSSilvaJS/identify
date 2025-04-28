@@ -8,10 +8,12 @@ import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { createCaso } from "../../services/caso.service";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../../api";
 
 function NewCaso() {
 
+    const { casoId } = useParams();
     const navigate = useNavigate();
 
     const [inputLocation, setInputLocation] = useState('');
@@ -99,60 +101,131 @@ function NewCaso() {
                     latitude: coords.latitude, longitude: coords.longitude
                 }
             })
-            .then(() => {
-                toast.success('Caso criado com sucesso');
-                navigate('/casos');
-            })
-            .catch((err) => {
-                toast.error('Erro ao criar caso');
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+                .then(() => {
+                    toast.success('Caso criado com sucesso');
+                    navigate('/casos');
+                })
+                .catch((err) => {
+                    toast.error('Erro ao criar caso');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         } else {
             toast.error('Preencha todos os campos');
             setLoading(false);
         }
     }
 
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        if (casoId) {
+            setLoading(true);
+            if (coords && descricao && titulo && dataAbertura && dataOcorrencia) {
+                await api.put(`/casos/${casoId}`, {
+                    titulo,
+                    descricao,
+                    status,
+                    dataAbertura,
+                    dataConclusao,
+                    dataOcorrencia,
+                    localizacao: {
+                        latitude: coords.latitude, longitude: coords.longitude
+                    }
+                })
+                    .then(() => {
+                        toast.success('Caso atualizado com sucesso');
+                        navigate('/casos');
+                    })
+                    .catch((err) => {
+                        toast.error('Erro ao atualizar caso', err);
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            } else {
+                toast.error('Preencha todos os campos');
+                setLoading(false);
+            }
+        }
+    }
+
+    function dateToDatetimeLocal(date) {
+        if (!date) return '';
+
+        // Se for string, converte para Date primeiro
+        const d = typeof date === 'string' ? new Date(date) : date;
+
+        // Extrai os componentes da data
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    useEffect(() => {
+        async function fetchCaso() {
+            if (casoId) {
+                try {
+                    const res = await api.get(`/casos/${casoId}`);
+                    const evidencia = res.data;
+                    setTitulo(evidencia.titulo);
+                    setDescricao(evidencia.descricao);
+                    setStatus(evidencia.status);
+                    setDataAbertura(dateToDatetimeLocal(evidencia.dataAbertura));
+                    setDataConclusao(dateToDatetimeLocal(evidencia.dataConclusao));
+                    setDataOcorrencia(dateToDatetimeLocal(evidencia.dataOcorrencia));
+                    setCoords(evidencia.localizacao);
+                } catch (error) {
+                    toast.error('Erro ao buscar caso');
+                }
+            }
+        }
+
+        fetchCaso();
+    }, []);
+
     return (
         <PlataformContainer>
             <section className="flex-1 shadow-xl bg-white rounded-lg p-6 w-full flex flex-col items-center">
-                <h1 className="text-darkblue font-bold text-2xl mb-6">Novo Caso</h1>
+                <h1 className="text-darkblue font-bold text-2xl mb-6">{casoId ? 'Editar Caso' : 'Novo Caso'}</h1>
                 <hr className="w-full border-darkblue border mb-6" />
                 <form className="w-full flex flex-col gap-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Titulo</label>
-                            <input onChange={(e) => setTitulo(e.target.value)} type="text" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" placeholder="Digite um título para o caso"/>
+                            <input value={titulo} onChange={(e) => setTitulo(e.target.value)} type="text" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" placeholder="Digite um título para o caso" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Status</label>
-                            <select onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]">
-                                <option value="1">Em andamento</option>
-                                <option value="2">Finalizado</option>
-                                <option value="3">Arquivado</option>
+                            <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all h-[42px]">
+                                <option value="Em andamento">Em andamento</option>
+                                <option value="Finalizado">Finalizado</option>
+                                <option value="Arquivado">Arquivado</option>
                             </select>
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Descrição</label>
-                        <textarea onChange={(e) => setDescricao(e.target.value)} className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none h-32 resize-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" placeholder="Digite uma descrição para o caso"/>
+                        <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none h-32 resize-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" placeholder="Digite uma descrição para o caso" />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Data de Abertura</label>
-                            <input onChange={(e) => setDataAbertura(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+                            <input value={dataAbertura} onChange={(e) => setDataAbertura(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Data de Conclusão</label>
-                            <input onChange={(e) => setDataConclusao(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+                            <input value={dataConclusao} onChange={(e) => setDataConclusao(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-darkblue font-bold text-sm">Data da Ocorrência</label>
-                            <input onChange={(e) => setDataOcorrencia(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+                            <input value={dataOcorrencia} onChange={(e) => setDataOcorrencia(e.target.value)} type="datetime-local" className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
                         </div>
                     </div>
 
@@ -181,9 +254,12 @@ function NewCaso() {
                         </MapContainer>
                     </div>
 
-                    <button className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" onClick={handleSubmit}>
+                    {!casoId && <button className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" onClick={handleSubmit}>
                         {loading ? 'Salvando...' : 'Salvar Caso'}
-                    </button>
+                    </button>}
+                    {casoId && <button className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" onClick={handleUpdate}>
+                        {loading ? 'Atualizando...' : 'Atualizar Caso'}
+                    </button>}
                 </form>
             </section>
         </PlataformContainer>

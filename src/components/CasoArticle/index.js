@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 import api from "../../api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataConclusao, dataOcorrencia, localizacao, latitude, longitude, casoId, evidenciaId, pacienteId, laudoId, fetchCasos, evidencia, paciente, laudo }) {
     const generatePDF = () => {
@@ -208,6 +210,8 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
     const pacienteRef = useRef(null);
     const laudoRef = useRef(null);
 
+    const navigate = useNavigate();
+
     const customIcon = new L.Icon({
         iconUrl: markerIcon,
         shadowUrl: markerShadow,
@@ -301,7 +305,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
         setDeletingLaudo(true);
         try {
             const response = await api.delete(`/laudos/${laudoId}`);
-            if (response.status === 200) {  
+            if (response.status === 200) {
                 toast.success('Laudo deletado com sucesso!');
                 fetchCasos();
             } else {
@@ -314,12 +318,35 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
         }
     }
 
+    async function handleDeleteCaso() {
+        try {
+            const response = await api.delete(`/casos/${id}`);
+            if (response.status === 200) {
+                toast.success('Caso deletado com sucesso!');
+                fetchCasos();
+            } else {
+                toast.error('Erro ao deletar caso');
+            }
+        } catch (error) {
+            toast.error('Erro ao deletar caso');
+        }
+    }
+
     return (
-        <article className="w-full bg-white shadow-md rounded-lg p-6" key={key}>
+        <article className="w-full bg-white shadow-md rounded-lg p-6 pt-12 relative" key={key}>
+            <div className="flex items-center mb-4 absolute top-4 right-4 gap-6">
+                <button>
+                    <FaEdit size={20} className="text-darkblue cursor-pointer" onClick={() => navigate(`/casos/editar/${id}`)}/>
+                </button>
+                <button>
+                    <FaTrash size={20} className="text-darkblue cursor-pointer" onClick={handleDeleteCaso}/>
+                </button>
+            </div>
             <header className="border-b border-gray-200 pb-4 mb-4">
                 <h1 className="text-2xl font-semibold text-gray-800">Caso #{id}</h1>
                 <h2 className="text-xl text-gray-700 mt-2">{titulo}</h2>
             </header>
+
 
             <div className="space-y-6">
                 <section>
@@ -526,16 +553,16 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                             </div>
                         )}
                     </div>
-                    {evidenciaId && pacienteId && laudoId && (<div>
-                        <button
-                            className="text-sm font-medium text-white bg-purple-600 hover:bg-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
-                            onClick={generatePDF}
-
-                        >
-                            Gerar relatório
-                        </button>
-                    </div>)}
                 </div>
+                {evidenciaId && pacienteId && laudoId && (<div>
+                    <button
+                        className="text-sm font-medium text-white bg-purple-600 hover:bg-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
+                        onClick={generatePDF}
+
+                    >
+                        Gerar relatório
+                    </button>
+                </div>)}
             </div>
         </article>
     );
