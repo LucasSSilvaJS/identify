@@ -7,7 +7,7 @@ import api from "../../api";
 
 function NewLaudo() {
     const navigate = useNavigate();
-    const {casoId} = useParams();
+    const {casoId, laudoId} = useParams();
     const {user} = useContext(AuthContext);
     const [titulo, setTitulo] = useState('');
     const [detalhamento, setDetalhamento] = useState('');
@@ -54,10 +54,40 @@ function NewLaudo() {
         }
     };
 
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        if(laudoId) {
+            setIsLoading(true);
+            if (titulo && detalhamento && conclusao) {
+                try {
+                    const laudoData = {
+                        titulo,
+                        detalhamento,
+                        conclusao
+                    };
+                    
+                    await api.put(`/laudos/${laudoId}`, laudoData);
+    
+                    toast.success('Laudo atualizado com sucesso');
+                    navigate('/casos');
+                    
+                } catch (error) {
+                    console.error("Erro ao atualizar laudo:", error);
+                    toast.error("Erro ao atualizar laudo");
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                toast.warn('Preencha todos os campos obrigatórios');
+                setIsLoading(false);
+            }
+        }
+    };
+
     return (
         <PlataformContainer>
             <section className="flex-1 shadow-xl bg-white rounded-lg p-6 w-full flex flex-col items-center">
-                <h1 className="text-darkblue font-bold text-2xl mb-6">Novo Laudo</h1>
+                <h1 className="text-darkblue font-bold text-2xl mb-6">{ !casoId ? 'Editar Laudo' : 'Novo Laudo'}</h1>
                 <hr className="w-full border-darkblue border mb-6" />
                 <form className="w-full flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
@@ -88,13 +118,21 @@ function NewLaudo() {
                         />
                     </div>
 
-                    <button 
+                    { casoId && (<button 
                         className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" 
                         onClick={handleSubmit}
                         disabled={isLoading}
                     >
                         {isLoading ? 'Salvando...' : 'Salvar Laudo'}
-                    </button>
+                    </button>)}
+
+                    { !casoId && (<button 
+                        className="bg-green-800 text-white font-bold text-lg p-3 rounded-lg hover:bg-green-900 active:bg-green-950 transition-colors duration-200 mt-4" 
+                        onClick={handleEdit}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'Editando...' : 'Editar Laudo'}
+                    </button>)}
                 </form>
             </section>
         </PlataformContainer>

@@ -159,6 +159,33 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
             finalY = doc.lastAutoTable.finalY;
         }
 
+        // Seção do Laudo (se existir)
+        if (laudo) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(fontSizeLarge);
+            doc.text('Laudo:', 20, finalY + 15);
+            doc.setFontSize(fontSizeNormal);
+
+            autoTable(doc, {
+                startY: finalY + 20,
+                head: [['Informação', 'Detalhes']],
+                body: [
+                    ['Título', laudo.titulo || 'Não informado'],
+                    ['Detalhamento', laudo.detalhamento || 'Não informado'],
+                    ['Conclusão', laudo.conclusao || 'Não informado'],
+                    ['Data de Criação', formatDate(laudo.dataCriacao)],
+                ],
+                theme: 'grid',
+                headStyles: {
+                    fillColor: primaryColor,
+                    textColor: '#ffffff',
+                    fontStyle: 'bold'
+                },
+                margin: { left: 20 }
+            });
+            finalY = doc.lastAutoTable.finalY;
+        }
+
         // Rodapé
         doc.setFontSize(10);
         doc.setTextColor(secondaryColor);
@@ -377,7 +404,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                                 <h3 className="text-xl font-bold text-red-800 uppercase mb-4">Laudo</h3>
                                 <div className="space-y-2">
                                     <p className="text-gray-700"><span className="font-semibold">ID:</span> {laudo._id}</p>
-                                    {laudo.titulo && <p className="text-gray-700"><span className="font-semibold">Título:</span> <span className="font-bold">{laudo.titulo}</span></p>}
+                                    {laudo.titulo && <p className="text-gray-700"><span className="font-semibold">Título:</span> {laudo.titulo}</p>}
                                     {laudo.detalhamento && <p className="text-gray-700"><span className="font-semibold">Detalhamento:</span> {laudo.detalhamento}</p>}
                                     {laudo.conclusao && <p className="text-gray-700"><span className="font-semibold">Conclusão:</span> {laudo.conclusao}</p>}
                                 </div>
@@ -499,7 +526,7 @@ function CasoArticle({ id, key, titulo, descricao, status, dataAbertura, dataCon
                             </div>
                         )}
                     </div>
-                    {evidenciaId && pacienteId && (<div>
+                    {evidenciaId && pacienteId && laudoId && (<div>
                         <button
                             className="text-sm font-medium text-white bg-purple-600 hover:bg-purple-800 transition-colors duration-200 border-2 border-purple-600 hover:border-purple-800 rounded-lg px-4 py-2"
                             onClick={generatePDF}

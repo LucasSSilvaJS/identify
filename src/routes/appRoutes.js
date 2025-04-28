@@ -52,6 +52,11 @@ function AppRoutes() {
           <NewLaudo />
         </PrivateRoute>
       } />
+      <Route path="/laudos/editar/:laudoId" element={
+        <PrivateRoute>
+          <NewLaudo />
+        </PrivateRoute>
+      } />
       <Route path="/pacientes/novo/:casoId" element={
         <PrivateRoute>
           <NewPaciente />
