@@ -11,18 +11,18 @@ function Caso() {
 
     async function fetchCasos() {
         try {
-            const response = await api.get(`/casos?titulo=${search}`);
+            const response = await api.get(`/casos?titulo=${search}&status=${selectedStatus}`);
             if (response.status === 200) {
                 setCasos(response.data);
             }
         } catch (error) {
-            console.error(error);
+            console.error("Erro ao buscar casos: ", error);
         }
     }
 
     useEffect(() => {
         fetchCasos();
-    }, [search]);
+    }, [search, selectedStatus]);
 
     return (
         <PlataformContainer search={search} setSearch={setSearch} showStatusSelect={showStatusSelect} setShowStatusSelect={setShowStatusSelect} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus}>
