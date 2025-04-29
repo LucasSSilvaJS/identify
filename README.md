@@ -3,6 +3,14 @@
 ## Sobre o Projeto
 Sistema web desenvolvido para gerenciamento de casos forenses, permitindo o controle de evidências, laudos e pacientes relacionados a cada caso.
 
+## CONTA #1
+EMAIL: lucas@perito.com
+PASSWORD: 123456
+
+## CONTA #2
+EMAIL: admin@example.com
+PASSWORD: admin123
+
 ## Funcionalidades Principais
 
 ### Casos
