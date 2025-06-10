@@ -38,6 +38,7 @@ function CasoDetalhes() {
             if (response.status === 200) {
                 setCaso(response.data);
                 console.log('Relatório:', response.data.relatorio); // Debug
+                console.log('Evidências:', response.data.evidencias); // Debug das evidências
             }
         } catch (error) {
             console.error("Erro ao buscar caso: ", error);
@@ -96,6 +97,23 @@ function CasoDetalhes() {
             } catch (error) {
                 console.error('Erro ao excluir relatório:', error);
                 toast.error('Erro ao excluir relatório');
+            }
+        }
+    }
+
+    async function handleDeleteEvidencia(evidenciaId) {
+        if (window.confirm('Tem certeza que deseja excluir esta evidência? Esta ação não pode ser desfeita.')) {
+            try {
+                const response = await api.delete(`/evidencias/${evidenciaId}`, {
+                    data: { userId: user.id, casoId: id }
+                });
+                if (response.status === 200) {
+                    toast.success('Evidência excluída com sucesso!');
+                    fetchCaso(); // Recarrega os dados do caso
+                }
+            } catch (error) {
+                console.error('Erro ao excluir evidência:', error);
+                toast.error('Erro ao excluir evidência');
             }
         }
     }
@@ -278,28 +296,85 @@ function CasoDetalhes() {
                 {/* Evidências */}
                 {caso.evidencias && caso.evidencias.length > 0 ? (
                     <div className="bg-white rounded-lg shadow-md p-6">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <div className="flex justify-between items-start mb-6">
+                            <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                             <FaCamera className="text-purple-600" />
                             Evidências ({caso.evidencias.length})
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {caso.evidencias.map((evidencia) => (
+                            <button
+                                onClick={() => navigate(`/evidencias/novo/${id}`)}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center gap-2"
+                            >
+                                <FaCamera />
+                                Adicionar Evidência
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {caso.evidencias.map((evidencia, index) => (
                                 <div key={evidencia._id} className="bg-gray-50 p-4 rounded-lg border">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        {getTipoEvidenciaIcon(evidencia.tipo)}
-                                        <span className="font-semibold text-gray-800">{evidencia.tipo}</span>
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex-1">
+                                            <h4 className="font-semibold text-gray-800">Evidência {index + 1}</h4>
+                                            <div className="flex items-center gap-2">
+                                                {getTipoEvidenciaIcon(evidencia.tipo)}
+                                                <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                                    {evidencia.tipo}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => navigate(`/evidencias/${evidencia._id}?casoId=${id}`)}
+                                            className="px-3 py-1.5 border-2 border-purple-500 text-purple-600 hover:bg-purple-50 hover:border-purple-600 transition-all duration-200 text-sm font-bold rounded-md"
+                                            title="Ver dados completos da evidência"
+                                        >
+                                            Ver mais
+                                        </button>
                                     </div>
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        <strong>Data:</strong> {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(evidencia.dataColeta))}
-                                    </p>
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        <strong>Status:</strong> {evidencia.status}
-                                    </p>
-                                    {evidencia.geolocalizacao && (
+                                    <div className="space-y-2">
                                         <p className="text-sm text-gray-600">
-                                            <strong>Local:</strong> {evidencia.geolocalizacao.latitude}, {evidencia.geolocalizacao.longitude}
+                                            <strong>Data de Coleta:</strong> {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(evidencia.dataColeta))}
                                         </p>
-                                    )}
+                                        <p className="text-sm text-gray-600">
+                                            <strong>Status:</strong> 
+                                            <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
+                                                evidencia.status === 'Concluído' 
+                                                    ? 'bg-green-100 text-green-800' 
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                            }`}>
+                                                {evidencia.status}
+                                            </span>
+                                        </p>
+                                        {evidencia.coletadaPor ? (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Coletada por:</strong> {evidencia.coletadaPor.email || evidencia.coletadaPor.nome || 'Usuário não identificado'}
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Coletada por:</strong> Não informado
+                                            </p>
+                                        )}
+                                        {evidencia.geolocalizacao && (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Localização:</strong> {evidencia.geolocalizacao.latitude}, {evidencia.geolocalizacao.longitude}
+                                            </p>
+                                        )}
+                                        {evidencia.imagens && evidencia.imagens.length > 0 && (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Imagens:</strong> {evidencia.imagens.length} arquivo(s)
+                                            </p>
+                                        )}
+                                        {evidencia.textos && evidencia.textos.length > 0 && (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Textos:</strong> {evidencia.textos.length} documento(s)
+                                            </p>
+                                        )}
+                                        {evidencia.laudo && (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Laudo:</strong> Presente
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -350,16 +425,13 @@ function CasoDetalhes() {
                                                 NIC: {vitima.nic}
                                             </span>
                                         </div>
-                                        <div className="flex gap-2 ml-2">
-                                            <button
-                                                onClick={() => navigate(`/vitimas/${vitima._id}?casoId=${id}`)}
-                                                className="px-4 py-2 border-2 border-green-500 text-green-600 bg-white hover:bg-green-50 hover:border-green-600 transition-all duration-200 flex items-center gap-2 text-sm font-semibold rounded-md shadow-sm"
-                                                title="Ver dados completos, odontogramas e gerenciar vítima"
-                                            >
-                                                <FaUser size={14} />
-                                                Ver Dados
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => navigate(`/vitimas/${vitima._id}?casoId=${id}`)}
+                                            className="px-3 py-1.5 border-2 border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 transition-all duration-200 text-sm font-bold rounded-md"
+                                            title="Ver dados completos da vítima"
+                                        >
+                                            Ver mais
+                                        </button>
                                     </div>
                                     <div className="space-y-2">
                                         {vitima.nome && (

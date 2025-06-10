@@ -6,6 +6,7 @@ import NewCaso from "../pages/NewCaso";
 import Caso from "../pages/Caso";
 import CasoDetalhes from "../pages/CasoDetalhes";
 import NewEvidencia from "../pages/NewEvidencia";
+import EvidenciaDetalhes from "../pages/EvidenciaDetalhes";
 import NewLaudo from "../pages/NewLaudo";
 import NewPaciente from "../pages/NewPaciente";
 import NewRelatorio from "../pages/NewRelatorio";
@@ -61,6 +62,11 @@ function AppRoutes() {
       <Route path="/evidencias/editar/:evidenciaId" element={
         <PrivateRoute>
           <NewEvidencia />
+        </PrivateRoute>
+      } />
+      <Route path="/evidencias/:id" element={
+        <PrivateRoute>
+          <EvidenciaDetalhes />
         </PrivateRoute>
       } />
       <Route path="/laudos/novo/:casoId" element={
