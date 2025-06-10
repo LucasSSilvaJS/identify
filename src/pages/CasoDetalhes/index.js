@@ -317,7 +317,7 @@ function CasoDetalhes() {
                                         <div className="flex-1">
                                             <h4 className="font-semibold text-gray-800">Evidência {index + 1}</h4>
                                             <div className="flex items-center gap-2">
-                                                {getTipoEvidenciaIcon(evidencia.tipo)}
+                                        {getTipoEvidenciaIcon(evidencia.tipo)}
                                                 <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
                                                     {evidencia.tipo}
                                                 </span>
@@ -334,7 +334,7 @@ function CasoDetalhes() {
                                     <div className="space-y-2">
                                         <p className="text-sm text-gray-600">
                                             <strong>Data de Coleta:</strong> {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(evidencia.dataColeta))}
-                                        </p>
+                                    </p>
                                         <p className="text-sm text-gray-600">
                                             <strong>Status:</strong> 
                                             <span className={`ml-1 px-2 py-1 rounded-full text-xs ${
@@ -372,8 +372,8 @@ function CasoDetalhes() {
                                         {evidencia.laudo && (
                                             <p className="text-sm text-gray-600">
                                                 <strong>Laudo:</strong> Presente
-                                            </p>
-                                        )}
+                                        </p>
+                                    )}
                                     </div>
                                 </div>
                             ))}
@@ -425,13 +425,13 @@ function CasoDetalhes() {
                                                 NIC: {vitima.nic}
                                             </span>
                                         </div>
-                                        <button
-                                            onClick={() => navigate(`/vitimas/${vitima._id}?casoId=${id}`)}
+                                            <button
+                                                onClick={() => navigate(`/vitimas/${vitima._id}?casoId=${id}`)}
                                             className="px-3 py-1.5 border-2 border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 transition-all duration-200 text-sm font-bold rounded-md"
                                             title="Ver dados completos da vítima"
-                                        >
+                                            >
                                             Ver mais
-                                        </button>
+                                            </button>
                                     </div>
                                     <div className="space-y-2">
                                         {vitima.nome && (

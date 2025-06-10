@@ -93,8 +93,8 @@ function NewEvidencia() {
             return;
         }
 
-        setLoading(true);
-        try {
+            setLoading(true);
+            try {
             const evidenciaData = {
                 tipo,
                 dataColeta,
@@ -107,18 +107,18 @@ function NewEvidencia() {
 
             const response = await api.post('/evidencias', evidenciaData);
 
-            toast.success(response.data.message);
+                toast.success(response.data.message);
             navigate(`/casos/${casoId}`);
-        } catch (error) {
-            console.error("Erro ao criar evidência:", error);
-            toast.error("Erro ao criar evidência");
-        } finally {
-            setLoading(false);
+            } catch (error) {
+                console.error("Erro ao criar evidência:", error);
+                toast.error("Erro ao criar evidência");
+            } finally {
+                setLoading(false);
         }
     };
-
-    const handleEdit = async (e) => {
-        e.preventDefault();
+    
+const handleEdit = async (e) => {
+    e.preventDefault();
 
         if (!tipo || !dataColeta || !coords) {
             toast.warn('Preencha todos os campos obrigatórios e selecione uma localização');
@@ -142,55 +142,55 @@ function NewEvidencia() {
             if (casoId) {
                 navigate(`/casos/${casoId}`);
             } else {
-                navigate('/casos');
+            navigate('/casos');
             }
         } catch (error) {
             console.error("Erro ao editar evidência:", error);
             toast.error("Erro ao editar evidência");
         } finally {
             setLoading(false);
-        }
-    };
-
-    function dateToDatetimeLocal(date) {
-        if (!date) return '';
-        
-        // Se for string, converte para Date primeiro
-        const d = typeof date === 'string' ? new Date(date) : date;
-        
-        // Extrai os componentes da data
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        const hours = String(d.getHours()).padStart(2, '0');
-        const minutes = String(d.getMinutes()).padStart(2, '0');
-      
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
+};
 
-    useEffect(() => {
-        const fetchEvidencia = async () => {
-            if (evidenciaId && !casoId) {
-                try {
-                    const response = await api.get(`/evidencias/${evidenciaId}`);
-                    const evidencia = response.data;
-                    setTipo(evidencia.tipo);
-                    setDataColeta(dateToDatetimeLocal(evidencia.dataColeta));
-                    setStatus(evidencia.status);
+function dateToDatetimeLocal(date) {
+    if (!date) return '';
+    
+    // Se for string, converte para Date primeiro
+    const d = typeof date === 'string' ? new Date(date) : date;
+    
+    // Extrai os componentes da data
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+useEffect(() => {
+    const fetchEvidencia = async () => {
+        if (evidenciaId && !casoId) {
+            try {
+                const response = await api.get(`/evidencias/${evidenciaId}`);
+                const evidencia = response.data;
+                setTipo(evidencia.tipo);
+                setDataColeta(dateToDatetimeLocal(evidencia.dataColeta));
+                setStatus(evidencia.status);
                     if (evidencia.geolocalizacao) {
                         setCoords({
                             latitude: parseFloat(evidencia.geolocalizacao.latitude),
                             longitude: parseFloat(evidencia.geolocalizacao.longitude)
                         });
                     }
-                } catch (error) {
-                    console.error("Erro ao consultar evidência:", error);
-                    toast.error("Erro ao consultar evidência");
-                }
+            } catch (error) {
+                console.error("Erro ao consultar evidência:", error);
+                toast.error("Erro ao consultar evidência");
             }
         }
+    }
 
-        fetchEvidencia();
+    fetchEvidencia();
     }, [evidenciaId, casoId]);
 
     return (
@@ -255,7 +255,7 @@ function NewEvidencia() {
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Localização *</label>
                         <div className="flex gap-2 flex-col sm:flex-row">
-                            <input 
+                        <input
                                 type="text" 
                                 value={inputLocation} 
                                 onChange={(e) => setInputLocation(e.target.value)} 

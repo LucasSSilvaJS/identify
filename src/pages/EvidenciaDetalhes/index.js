@@ -7,7 +7,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCamera, FaArrowLeft, FaUser, FaFileAlt, FaCalendarAlt, FaGlobe, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCamera, FaArrowLeft, FaUser, FaFileAlt, FaCalendarAlt, FaGlobe, FaPlus, FaComments } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 
 function EvidenciaDetalhes() {
@@ -17,6 +17,8 @@ function EvidenciaDetalhes() {
     const [evidencia, setEvidencia] = useState(null);
     const [loading, setLoading] = useState(true);
     const [loadingImagens, setLoadingImagens] = useState(false);
+    const [loadingComentarios, setLoadingComentarios] = useState(false);
+    const [comentarios, setComentarios] = useState([]);
     const { user } = useContext(AuthContext);
 
     // Extrair casoId da query string
@@ -44,6 +46,7 @@ function EvidenciaDetalhes() {
                 setEvidencia(response.data);
                 console.log('Dados da evidência:', response.data);
                 console.log('Imagens da evidência:', response.data.imagens);
+                console.log('Textos da evidência:', response.data.textos);
                 
                 // Debug detalhado das imagens
                 if (response.data.imagens && response.data.imagens.length > 0) {
@@ -86,6 +89,50 @@ function EvidenciaDetalhes() {
                     setLoadingImagens(false);
                 } else {
                     console.log('Nenhuma imagem encontrada na evidência');
+                }
+
+                // Processar textos/comentários da evidência
+                if (response.data.textos && response.data.textos.length > 0) {
+                    console.log('=== DEBUG TEXTOS ===');
+                    response.data.textos.forEach((texto, index) => {
+                        console.log(`Texto ${index + 1}:`, {
+                            _id: texto._id,
+                            conteudo: texto.conteudo,
+                            tipo: typeof texto,
+                            keys: Object.keys(texto),
+                            valor: texto
+                        });
+                    });
+                    
+                    // Verificar se os textos são apenas IDs (strings) e buscar dados completos
+                    setLoadingComentarios(true);
+                    const textosCompletos = await Promise.all(
+                        response.data.textos.map(async (texto) => {
+                            if (typeof texto === 'string') {
+                                // Se é apenas um ID, buscar os dados completos
+                                try {
+                                    const textoResponse = await api.get(`/evidencias/${id}/textos/${texto}`);
+                                    return textoResponse.data;
+                                } catch (error) {
+                                    console.error(`Erro ao buscar texto ${texto}:`, error);
+                                    return { _id: texto, conteudo: null };
+                                }
+                            }
+                            return texto;
+                        })
+                    );
+                    
+                    setComentarios(textosCompletos);
+                    setEvidencia(prev => ({
+                        ...prev,
+                        textos: textosCompletos
+                    }));
+                    
+                    console.log('Textos completos carregados:', textosCompletos);
+                    setLoadingComentarios(false);
+                } else {
+                    console.log('Nenhum texto encontrado na evidência');
+                    setComentarios([]);
                 }
             }
         } catch (error) {
@@ -185,6 +232,54 @@ function EvidenciaDetalhes() {
     // Navegar para página de criação de anexo
     function handleCreateAnexo() {
         navigate(`/evidencias/${id}/anexos${casoId ? `?casoId=${casoId}` : ''}`);
+    }
+
+    // Excluir comentário
+    async function handleDeleteComentario(comentarioId) {
+        if (!comentarioId) {
+            toast.error('ID do comentário não encontrado');
+            return;
+        }
+
+        if (window.confirm('Tem certeza que deseja excluir este comentário? Esta ação não pode ser desfeita.')) {
+            try {
+                // DELETE /evidencias/{evidenciaId}/textos/{textoId}
+                const response = await api.delete(`/evidencias/${id}/textos/${comentarioId}`);
+                
+                if (response.status === 200) {
+                    toast.success('Comentário excluído com sucesso!');
+                    fetchEvidencia(); // Recarrega a evidência completa
+                }
+            } catch (error) {
+                console.error('Erro ao excluir comentário:', error);
+                
+                if (error.response?.status === 404) {
+                    toast.error('Comentário não encontrado');
+                } else if (error.response?.status === 500) {
+                    toast.error('Erro interno do servidor ao excluir comentário');
+                } else if (error.response?.status === 401) {
+                    toast.error('Não autorizado para excluir este comentário');
+                } else {
+                    toast.error(`Erro ao excluir comentário: ${error.response?.data?.error || error.message}`);
+                }
+            }
+        }
+    }
+
+    // Editar comentário
+    function handleEditComentario(comentarioId) {
+        if (!comentarioId) {
+            toast.error('ID do comentário não encontrado');
+            return;
+        }
+
+        // Navegar para página de edição de comentário
+        navigate(`/evidencias/${id}/comentarios?edit=${comentarioId}${casoId ? `&casoId=${casoId}` : ''}`);
+    }
+
+    // Navegar para página de criação de comentário
+    function handleCreateComentario() {
+        navigate(`/evidencias/${id}/comentarios${casoId ? `?casoId=${casoId}` : ''}`);
     }
 
     const getTipoEvidenciaIcon = (tipo) => {
@@ -456,6 +551,102 @@ function EvidenciaDetalhes() {
                             >
                                 <FaPlus />
                                 Adicionar Anexo
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Comentários do Perito */}
+                {comentarios && comentarios.length > 0 ? (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <FaComments className="text-green-600" />
+                                Comentários do Perito ({comentarios.length})
+                                {loadingComentarios && (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                                )}
+                            </h3>
+                            <button
+                                onClick={handleCreateComentario}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+                            >
+                                <FaPlus />
+                                Adicionar Comentário
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {comentarios.map((comentario, index) => (
+                                <div key={comentario._id} className="bg-gray-50 p-4 rounded-lg border">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex-1">
+                                            <h4 className="font-semibold text-gray-800">Comentário {index + 1}</h4>
+                                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                                ID: {comentario._id.slice(-8)}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-1 sm:gap-2">
+                                            <button
+                                                onClick={() => handleEditComentario(comentario._id)}
+                                                className="p-2 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all duration-200 rounded-md flex items-center justify-center"
+                                                title="Editar comentário"
+                                            >
+                                                <FaEdit size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteComentario(comentario._id)}
+                                                className="p-2 border-2 border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600 transition-all duration-200 rounded-md flex items-center justify-center"
+                                                title="Excluir comentário"
+                                            >
+                                                <FaTrash size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="bg-white p-3 rounded border">
+                                            <p className="text-gray-800 whitespace-pre-wrap">{comentario.conteudo}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            {comentario.createdAt && (
+                                                <p className="text-sm text-gray-600">
+                                                    <strong>Criado em:</strong> {new Intl.DateTimeFormat('pt-BR', { 
+                                                        dateStyle: 'short', 
+                                                        timeStyle: 'short' 
+                                                    }).format(new Date(comentario.createdAt))}
+                                                </p>
+                                            )}
+                                            {comentario.updatedAt && comentario.updatedAt !== comentario.createdAt && (
+                                                <p className="text-sm text-gray-600">
+                                                    <strong>Atualizado em:</strong> {new Intl.DateTimeFormat('pt-BR', { 
+                                                        dateStyle: 'short', 
+                                                        timeStyle: 'short' 
+                                                    }).format(new Date(comentario.updatedAt))}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                            <FaComments className="text-green-600" />
+                            Comentários do Perito
+                            {loadingComentarios && (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                            )}
+                        </h3>
+                        <div className="text-center py-8">
+                            <p className="text-gray-600 mb-4">Nenhum comentário encontrado para esta evidência.</p>
+                            <button
+                                onClick={handleCreateComentario}
+                                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2 mx-auto"
+                            >
+                                <FaPlus />
+                                Adicionar Comentário
                             </button>
                         </div>
                     </div>

@@ -9,6 +9,7 @@ import NewEvidencia from "../pages/NewEvidencia";
 import EvidenciaDetalhes from "../pages/EvidenciaDetalhes";
 import EvidenciaAnexos from "../pages/EvidenciaAnexos";
 import EvidenciaAnexoEditar from "../pages/EvidenciaAnexoEditar";
+import EvidenciaComentario from "../pages/EvidenciaComentario";
 import NewLaudo from "../pages/NewLaudo";
 import NewPaciente from "../pages/NewPaciente";
 import NewRelatorio from "../pages/NewRelatorio";
@@ -79,6 +80,11 @@ function AppRoutes() {
       <Route path="/evidencias/:id/anexos/:anexoId/editar" element={
         <PrivateRoute>
           <EvidenciaAnexoEditar />
+        </PrivateRoute>
+      } />
+      <Route path="/evidencias/:id/comentarios" element={
+        <PrivateRoute>
+          <EvidenciaComentario />
         </PrivateRoute>
       } />
       <Route path="/laudos/novo/:casoId" element={
