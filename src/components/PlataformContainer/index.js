@@ -3,6 +3,7 @@ import { LuFilter, LuUserPlus } from "react-icons/lu";
 import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
 import { MdOutlineHome } from "react-icons/md";
+import { IoPerson } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useContext } from "react";
@@ -46,7 +47,7 @@ function PlataformContainer({ children, search = "", setSearch, showStatusSelect
                     </div>
 
                     <label id="search" className="relative w-full sm:w-1/2 h-10">
-                        <input disabled={disabled} type="text" placeholder="Buscar" className={`w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0 ${disabled ? "cursor-not-allowed" : ""}`} value={search} onChange={handleSearch}/>
+                        <input disabled={disabled} type="text" placeholder="Buscar por título ou descrição" className={`w-full px-4 py-2 pe-14 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none absolute inset-0 ${disabled ? "cursor-not-allowed" : ""}`} value={search} onChange={handleSearch}/>
                         <IoMdCloseCircleOutline className={`text-darkblue absolute right-2 top-1/2 -translate-y-1/2 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`} onClick={disabled ? () => {} : () => setSearch("")}/>
                         <LuFilter className={`text-darkblue absolute right-8 top-1/2 -translate-y-1/2 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`} onClick={disabled ? () => {} :    () => setShowStatusSelect(!showStatusSelect)}/>
                         {showStatusSelect && (
@@ -83,6 +84,10 @@ function PlataformContainer({ children, search = "", setSearch, showStatusSelect
                         <Link to="/home" className="flex items-center justify-center gap-1 bg-lightbeige rounded-lg p-2 flex-col sm:h-20 h-16">
                             <MdOutlineHome className="text-darkblue sm:text-4xl text-3xl" />
                             <p className="text-darkblue sm:text-base text-sm">Home</p>
+                        </Link>
+                        <Link to="/perfil" className="flex items-center justify-center gap-1 bg-lightbeige rounded-lg p-2 flex-col sm:h-20 h-16">
+                            <IoPerson className="text-darkblue sm:text-2xl text-xl" />
+                            <p className="text-darkblue sm:text-base text-sm">Perfil</p>
                         </Link>
                     </aside>
                     <div className="flex-1">

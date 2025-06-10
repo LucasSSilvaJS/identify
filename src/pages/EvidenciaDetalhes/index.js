@@ -847,7 +847,7 @@ function EvidenciaDetalhes() {
                                 )}
                                 {laudo.peritoResponsavel && (
                                     <p className="text-sm text-gray-600">
-                                        <strong>Perito Responsável:</strong> {laudo.peritoResponsavel.email || laudo.peritoResponsavel.nome || 'Não informado'}
+                                        <strong>Perito Responsável:</strong> {laudo.peritoResponsavel.username || laudo.peritoResponsavel.email || 'Não informado'}
                                     </p>
                                 )}
                             </div>

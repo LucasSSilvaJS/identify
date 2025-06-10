@@ -541,10 +541,10 @@ function CasoDetalhes() {
                         <div className="bg-gray-50 p-4 rounded-lg">
                             <h4 className="font-semibold text-gray-800 mb-3">{caso.relatorio.titulo}</h4>
                             <p className="text-sm text-gray-600 mb-4">
-                                <strong>Data de Criação:</strong> {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(caso.relatorio.dataCriacao))}
+                                <strong>Data de Criação:</strong> {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(caso.relatorio.createdAt || caso.relatorio.dataCriacao))}
                             </p>
                             <p className="text-sm text-gray-600 mb-4">
-                                <strong>Perito Responsável:</strong> {caso.relatorio.peritoResponsavel?.email || 'Não informado'}
+                                <strong>Perito Responsável:</strong> {caso.relatorio.peritoResponsavel?.username || caso.relatorio.peritoResponsavel?.email || 'Não informado'}
                             </p>
                             <div className="max-h-60 overflow-y-auto">
                                 <p className="text-gray-700 whitespace-pre-line leading-relaxed">

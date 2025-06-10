@@ -114,7 +114,7 @@ export const generateRelatorioPDF = (relatorio, caso) => {
     doc.setTextColor(50, 50, 50);
     
     const peritoInfo = [
-        `Perito Responsável: ${relatorio?.peritoResponsavel?.nome || relatorio?.peritoResponsavel?.email || 'N/A'}`,
+        `Perito Responsável: ${relatorio?.peritoResponsavel?.username || relatorio?.peritoResponsavel?.email || 'N/A'}`,
         `Data de Criação: ${relatorio?.createdAt ? new Date(relatorio.createdAt).toLocaleDateString('pt-BR') : 'N/A'}`,
         `Data de Atualização: ${relatorio?.updatedAt ? new Date(relatorio.updatedAt).toLocaleDateString('pt-BR') : 'N/A'}`
     ];
@@ -264,7 +264,7 @@ export const generateLaudoPDF = (laudo, evidencia) => {
     doc.setTextColor(50, 50, 50);
     
     const peritoInfo = [
-        `Perito Responsável: ${laudo?.peritoResponsavel?.nome || laudo?.peritoResponsavel?.email || 'N/A'}`,
+        `Perito Responsável: ${laudo?.peritoResponsavel?.username || laudo?.peritoResponsavel?.email || 'N/A'}`,
         `Data de Criação: ${laudo?.createdAt ? new Date(laudo.createdAt).toLocaleDateString('pt-BR') : 'N/A'}`,
         `Data de Atualização: ${laudo?.updatedAt ? new Date(laudo.updatedAt).toLocaleDateString('pt-BR') : 'N/A'}`
     ];
