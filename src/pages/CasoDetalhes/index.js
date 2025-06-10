@@ -7,8 +7,9 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaFileAlt, FaUser, FaCamera, FaArrowLeft } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaFileAlt, FaUser, FaCamera, FaArrowLeft, FaDownload } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
+import { generateRelatorioPDF } from "../../utils/pdfGenerator";
 
 function CasoDetalhes() {
     const { id } = useParams();
@@ -140,6 +141,22 @@ function CasoDetalhes() {
             } finally {
                 setGeneratingRelatorio(false);
             }
+        }
+    }
+
+    // Download do relatório em PDF
+    function handleDownloadRelatorioPDF() {
+        if (!caso.relatorio) {
+            toast.error('Nenhum relatório disponível para download');
+            return;
+        }
+        
+        try {
+            generateRelatorioPDF(caso.relatorio, caso);
+            toast.success('PDF do relatório gerado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao gerar PDF do relatório:', error);
+            toast.error('Erro ao gerar PDF do relatório');
         }
     }
 
@@ -496,20 +513,28 @@ function CasoDetalhes() {
                                 <FaFileAlt className="text-blue-600" />
                                 Relatório
                             </h3>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 sm:gap-3">
+                                <button
+                                    onClick={handleDownloadRelatorioPDF}
+                                    className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
+                                    title="Download PDF"
+                                >
+                                    <FaDownload />
+                                    <span className="hidden sm:inline">PDF</span>
+                                </button>
                                 <button
                                     onClick={() => navigate(`/relatorios/editar/${caso.relatorio._id}?casoId=${id}`)}
-                                    className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
-                                    title="Editar relatório"
+                                    className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
                                 >
-                                    <FaEdit size={16} />
+                                    <FaEdit />
+                                    <span className="hidden sm:inline">Editar</span>
                                 </button>
                                 <button
                                     onClick={() => handleDeleteRelatorio(caso.relatorio._id)}
-                                    className="p-1 text-red-600 hover:text-red-800 transition-colors"
-                                    title="Excluir relatório"
+                                    className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
                                 >
-                                    <FaTrash size={16} />
+                                    <FaTrash />
+                                    <span className="hidden sm:inline">Excluir</span>
                                 </button>
                             </div>
                         </div>

@@ -7,8 +7,9 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCamera, FaArrowLeft, FaUser, FaFileAlt, FaCalendarAlt, FaGlobe, FaPlus, FaComments } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCamera, FaArrowLeft, FaUser, FaFileAlt, FaCalendarAlt, FaGlobe, FaPlus, FaComments, FaGavel, FaDownload } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
+import { generateLaudoPDF } from "../../utils/pdfGenerator";
 
 function EvidenciaDetalhes() {
     const { id } = useParams();
@@ -18,7 +19,10 @@ function EvidenciaDetalhes() {
     const [loading, setLoading] = useState(true);
     const [loadingImagens, setLoadingImagens] = useState(false);
     const [loadingComentarios, setLoadingComentarios] = useState(false);
+    const [loadingLaudo, setLoadingLaudo] = useState(false);
+    const [generatingLaudo, setGeneratingLaudo] = useState(false);
     const [comentarios, setComentarios] = useState([]);
+    const [laudo, setLaudo] = useState(null);
     const { user } = useContext(AuthContext);
 
     // Extrair casoId da query string
@@ -47,6 +51,7 @@ function EvidenciaDetalhes() {
                 console.log('Dados da evidência:', response.data);
                 console.log('Imagens da evidência:', response.data.imagens);
                 console.log('Textos da evidência:', response.data.textos);
+                console.log('Laudo da evidência:', response.data.laudo);
                 
                 // Debug detalhado das imagens
                 if (response.data.imagens && response.data.imagens.length > 0) {
@@ -133,6 +138,37 @@ function EvidenciaDetalhes() {
                 } else {
                     console.log('Nenhum texto encontrado na evidência');
                     setComentarios([]);
+                }
+
+                // Processar laudo da evidência
+                if (response.data.laudo) {
+                    console.log('=== DEBUG LAUDO ===');
+                    console.log('Laudo encontrado:', response.data.laudo);
+                    
+                    // Verificar se o laudo é apenas um ID (string) e buscar dados completos
+                    setLoadingLaudo(true);
+                    try {
+                        if (typeof response.data.laudo === 'string') {
+                            // Se é apenas um ID, buscar os dados completos
+                            const laudoResponse = await api.get(`/laudos/${response.data.laudo}`);
+                            setLaudo(laudoResponse.data);
+                            setEvidencia(prev => ({
+                                ...prev,
+                                laudo: laudoResponse.data
+                            }));
+                        } else {
+                            setLaudo(response.data.laudo);
+                        }
+                        console.log('Laudo completo carregado:', laudo);
+                    } catch (error) {
+                        console.error(`Erro ao buscar laudo:`, error);
+                        setLaudo(null);
+                    } finally {
+                        setLoadingLaudo(false);
+                    }
+                } else {
+                    console.log('Nenhum laudo encontrado na evidência');
+                    setLaudo(null);
                 }
             }
         } catch (error) {
@@ -280,6 +316,98 @@ function EvidenciaDetalhes() {
     // Navegar para página de criação de comentário
     function handleCreateComentario() {
         navigate(`/evidencias/${id}/comentarios${casoId ? `?casoId=${casoId}` : ''}`);
+    }
+
+    // Excluir laudo
+    async function handleDeleteLaudo() {
+        if (!laudo) {
+            toast.error('Laudo não encontrado');
+            return;
+        }
+
+        if (window.confirm('Tem certeza que deseja excluir este laudo? Esta ação não pode ser desfeita.')) {
+            try {
+                // DELETE /laudos/{id}
+                const response = await api.delete(`/laudos/${laudo._id}`, {
+                    data: { evidenciaId: id }
+                });
+                
+                if (response.status === 200) {
+                    toast.success('Laudo excluído com sucesso!');
+                    fetchEvidencia(); // Recarrega a evidência completa
+                }
+            } catch (error) {
+                console.error('Erro ao excluir laudo:', error);
+                
+                if (error.response?.status === 404) {
+                    toast.error('Laudo não encontrado');
+                } else if (error.response?.status === 500) {
+                    toast.error('Erro interno do servidor ao excluir laudo');
+                } else if (error.response?.status === 401) {
+                    toast.error('Não autorizado para excluir este laudo');
+                } else {
+                    toast.error(`Erro ao excluir laudo: ${error.response?.data?.error || error.message}`);
+                }
+            }
+        }
+    }
+
+    // Editar laudo
+    function handleEditLaudo() {
+        if (!laudo) {
+            toast.error('Laudo não encontrado');
+            return;
+        }
+
+        // Navegar para página de edição de laudo
+        navigate(`/laudos/editar/${laudo._id}?casoId=${casoId || evidencia?.caso}&evidenciaId=${id}`);
+    }
+
+    // Navegar para página de criação de laudo
+    function handleCreateLaudo() {
+        navigate(`/laudos/novo/${casoId || evidencia?.caso}?evidenciaId=${id}`);
+    }
+
+    // Gerar laudo com IA
+    async function handleGenerateLaudo() {
+        if (window.confirm('Deseja gerar um laudo automático usando IA? Esta ação criará um laudo baseado nos dados da evidência.')) {
+            setGeneratingLaudo(true);
+            try {
+                const response = await api.post('/laudos/generate-with-ia', {
+                    evidenciaId: id,
+                    peritoResponsavel: user.id
+                });
+                if (response.status === 201) {
+                    toast.success('Laudo gerado com sucesso!');
+                    fetchEvidencia(); // Recarrega a evidência completa
+                }
+            } catch (error) {
+                console.error('Erro ao gerar laudo:', error);
+                if (error.response?.status === 400) {
+                    toast.error('Esta evidência já possui um laudo. Remova o laudo existente primeiro.');
+                } else {
+                    toast.error('Erro ao gerar laudo');
+                }
+            } finally {
+                setGeneratingLaudo(false);
+            }
+        }
+    }
+
+    // Download do laudo em PDF
+    function handleDownloadLaudoPDF() {
+        if (!laudo) {
+            toast.error('Nenhum laudo disponível para download');
+            return;
+        }
+        
+        try {
+            generateLaudoPDF(laudo, evidencia);
+            toast.success('PDF do laudo gerado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao gerar PDF do laudo:', error);
+            toast.error('Erro ao gerar PDF do laudo');
+        }
     }
 
     const getTipoEvidenciaIcon = (tipo) => {
@@ -648,6 +776,111 @@ function EvidenciaDetalhes() {
                                 <FaPlus />
                                 Adicionar Comentário
                             </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Laudo */}
+                {laudo && (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <FaGavel className="text-purple-600" />
+                                Laudo
+                            </h3>
+                            <div className="flex gap-2 sm:gap-3">
+                                <button
+                                    onClick={handleDownloadLaudoPDF}
+                                    className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
+                                    title="Download PDF"
+                                >
+                                    <FaDownload />
+                                    <span className="hidden sm:inline">PDF</span>
+                                </button>
+                                <button
+                                    onClick={handleEditLaudo}
+                                    className="px-3 sm:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
+                                >
+                                    <FaEdit />
+                                    <span className="hidden sm:inline">Editar</span>
+                                </button>
+                                <button
+                                    onClick={handleDeleteLaudo}
+                                    className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm sm:text-base"
+                                >
+                                    <FaTrash />
+                                    <span className="hidden sm:inline">Excluir</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <h4 className="font-semibold text-gray-800 mb-3">Descrição</h4>
+                                <div className="bg-white p-3 rounded border">
+                                    <p className="text-gray-800 whitespace-pre-wrap">{laudo.descricao}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <h4 className="font-semibold text-gray-800 mb-3">Conclusão</h4>
+                                <div className="bg-white p-3 rounded border">
+                                    <p className="text-gray-800 whitespace-pre-wrap">{laudo.conclusao}</p>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-1">
+                                {laudo.createdAt && (
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Criado em:</strong> {new Intl.DateTimeFormat('pt-BR', { 
+                                            dateStyle: 'short', 
+                                            timeStyle: 'short' 
+                                        }).format(new Date(laudo.createdAt))}
+                                    </p>
+                                )}
+                                {laudo.updatedAt && laudo.updatedAt !== laudo.createdAt && (
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Atualizado em:</strong> {new Intl.DateTimeFormat('pt-BR', { 
+                                            dateStyle: 'short', 
+                                            timeStyle: 'short' 
+                                        }).format(new Date(laudo.updatedAt))}
+                                    </p>
+                                )}
+                                {laudo.peritoResponsavel && (
+                                    <p className="text-sm text-gray-600">
+                                        <strong>Perito Responsável:</strong> {laudo.peritoResponsavel.email || laudo.peritoResponsavel.nome || 'Não informado'}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Criar Laudo */}
+                {!laudo && (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                            <FaGavel className="text-purple-600" />
+                            Laudo
+                        </h3>
+                        <div className="text-center py-8">
+                            <p className="text-gray-600 mb-4">Nenhum laudo criado para esta evidência.</p>
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button
+                                    onClick={handleCreateLaudo}
+                                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center gap-2 justify-center"
+                                >
+                                    <FaGavel />
+                                    Criar Laudo Manual
+                                </button>
+                                <button
+                                    onClick={handleGenerateLaudo}
+                                    disabled={generatingLaudo}
+                                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2 justify-center"
+                                >
+                                    <FaGavel />
+                                    {generatingLaudo ? 'Gerando...' : 'Gerar com IA'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
