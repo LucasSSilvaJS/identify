@@ -1,10 +1,12 @@
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SignContainer from "../../components/SignContainer";
 import { AuthContext } from "../../contexts/AuthContext";
 import { toast } from "react-toastify";
 
 function Login() {
     const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -21,9 +23,35 @@ function Login() {
         try {
             await login(email, password);
             toast.success("Login realizado com sucesso");
+            // Redireciona para a página home após login bem-sucedido
+            navigate("/home");
         } catch (error) {
             console.error("Erro ao realizar login:", error);
-            toast.error("Erro ao realizar login, tente novamente mais tarde");
+            
+            // Tratamento específico de erros baseado na resposta da API
+            if (error.response) {
+                // Erro com resposta do servidor
+                const status = error.response.status;
+                const message = error.response.data?.message || "Erro desconhecido";
+                
+                if (status === 401) {
+                    toast.error("E-mail ou senha incorretos");
+                } else if (status === 403) {
+                    toast.error("Conta não autorizada. Entre em contato com o administrador.");
+                } else if (status === 404) {
+                    toast.error("Usuário não encontrado");
+                } else if (status >= 500) {
+                    toast.error("Erro no servidor. Tente novamente mais tarde.");
+                } else {
+                    toast.error(message);
+                }
+            } else if (error.request) {
+                // Erro de rede
+                toast.error("Erro de conexão. Verifique sua internet e tente novamente.");
+            } else {
+                // Outros erros
+                toast.error("Erro ao realizar login, tente novamente mais tarde");
+            }
         } finally {
             setIsLoading(false);
         }

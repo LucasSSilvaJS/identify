@@ -13,13 +13,18 @@ export const AuthProvider = ({ children }) => {
     if (token && storedUser) {
       setAuthToken(token);
       setUser(JSON.parse(storedUser));
-      api.defaults.headers.Authorization = `Bearer ${token}`;
     }
   }, []);
 
   const login = async (email, password) => {
     try {
       const response = await api.post("/auth/login", { email, password });
+      
+      // Verifica se a resposta contém dados válidos
+      if (!response.data || !response.data.user || !response.data.user.token) {
+        throw new Error("Resposta inválida do servidor");
+      }
+      
       const { user } = response.data;
       setAuthToken(user.token);
       const userData = {
@@ -31,9 +36,10 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem("token", user.token);
       localStorage.setItem("user", JSON.stringify(userData));
-      api.defaults.headers.Authorization = `Bearer ${user.token}`;
     } catch (error) {
-      console.error(error);
+      console.error("Erro na autenticação:", error);
+      // Re-lança o erro para que o componente de login possa tratá-lo
+      throw error;
     }
   };
 
@@ -42,7 +48,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    api.defaults.headers.Authorization = "";
   };
 
   return (

@@ -34,10 +34,36 @@ function Cadastro() {
                 }
             }catch(err){
                 console.log('Erro ao cadastrar', err)
-                toast.error('Erro ao cadastrar')
+                
+                // Tratamento específico de erros baseado na resposta da API
+                if (err.response) {
+                    // Erro com resposta do servidor
+                    const status = err.response.status;
+                    const message = err.response.data?.message || "Erro desconhecido";
+                    
+                    if (status === 400) {
+                        toast.error("Dados inválidos. Verifique as informações fornecidas.");
+                    } else if (status === 409) {
+                        toast.error("Usuário ou e-mail já existe no sistema.");
+                    } else if (status === 403) {
+                        toast.error("Você não tem permissão para cadastrar usuários.");
+                    } else if (status >= 500) {
+                        toast.error("Erro no servidor. Tente novamente mais tarde.");
+                    } else {
+                        toast.error(message);
+                    }
+                } else if (err.request) {
+                    // Erro de rede
+                    toast.error("Erro de conexão. Verifique sua internet e tente novamente.");
+                } else {
+                    // Outros erros
+                    toast.error("Erro ao cadastrar usuário");
+                }
             }finally{
                 setIsLoading(false)
             }
+        } else {
+            toast.error("Preencha todos os campos obrigatórios");
         }
     }
 

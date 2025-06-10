@@ -4,11 +4,17 @@ import Cadastro from "../pages/Cadastro";
 import Home from "../pages/Home";
 import NewCaso from "../pages/NewCaso";
 import Caso from "../pages/Caso";
+import CasoDetalhes from "../pages/CasoDetalhes";
 import NewEvidencia from "../pages/NewEvidencia";
 import NewLaudo from "../pages/NewLaudo";
 import NewPaciente from "../pages/NewPaciente";
+import NewRelatorio from "../pages/NewRelatorio";
+import VitimaDetalhes from "../pages/VitimaDetalhes";
+import NewOdontograma from "../pages/NewOdontograma";
+import EditOdontograma from "../pages/EditOdontograma";
 import { PrivateRoute } from "../contexts/PrivateRoute";
 import { PublicRoute } from "../contexts/PublicRoute";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -42,6 +48,11 @@ function AppRoutes() {
           <Caso />
         </PrivateRoute>
       } />
+      <Route path="/casos/:id" element={
+        <PrivateRoute>
+          <CasoDetalhes />
+        </PrivateRoute>
+      } />
       <Route path="/evidencias/novo/:casoId" element={
         <PrivateRoute>
           <NewEvidencia />
@@ -70,6 +81,31 @@ function AppRoutes() {
       <Route path="/pacientes/editar/:pacienteId" element={
         <PrivateRoute>
           <NewPaciente />
+        </PrivateRoute>
+      } />
+      <Route path="/relatorios/novo/:casoId" element={
+        <PrivateRoute>
+          <NewRelatorio />
+        </PrivateRoute>
+      } />
+      <Route path="/relatorios/editar/:relatorioId" element={
+        <PrivateRoute>
+          <NewRelatorio />
+        </PrivateRoute>
+      } />
+      <Route path="/vitimas/:id" element={
+        <PrivateRoute>
+          <VitimaDetalhes />
+        </PrivateRoute>
+      } />
+      <Route path="/odontogramas/novo/:vitimaId" element={
+        <PrivateRoute>
+          <NewOdontograma />
+        </PrivateRoute>
+      } />
+      <Route path="/odontogramas/editar/:id" element={
+        <PrivateRoute>
+          <EditOdontograma />
         </PrivateRoute>
       } />
     </Routes>
