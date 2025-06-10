@@ -7,7 +7,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { toast } from "react-toastify";
 import api from "../../api";
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCamera, FaArrowLeft, FaUser, FaFileAlt, FaCalendarAlt, FaGlobe } from "react-icons/fa";
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCamera, FaArrowLeft, FaUser, FaFileAlt, FaCalendarAlt, FaGlobe, FaPlus } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 
 function EvidenciaDetalhes() {
@@ -16,6 +16,7 @@ function EvidenciaDetalhes() {
     const location = useLocation();
     const [evidencia, setEvidencia] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [loadingImagens, setLoadingImagens] = useState(false);
     const { user } = useContext(AuthContext);
 
     // Extrair casoId da query string
@@ -41,6 +42,51 @@ function EvidenciaDetalhes() {
             const response = await api.get(`/evidencias/${id}`);
             if (response.status === 200) {
                 setEvidencia(response.data);
+                console.log('Dados da evidência:', response.data);
+                console.log('Imagens da evidência:', response.data.imagens);
+                
+                // Debug detalhado das imagens
+                if (response.data.imagens && response.data.imagens.length > 0) {
+                    console.log('=== DEBUG IMAGENS ===');
+                    response.data.imagens.forEach((imagem, index) => {
+                        console.log(`Imagem ${index + 1}:`, {
+                            _id: imagem._id,
+                            imagemUrl: imagem.imagemUrl,
+                            url: imagem.url,
+                            tipo: typeof imagem,
+                            keys: Object.keys(imagem),
+                            valor: imagem
+                        });
+                    });
+                    
+                    // Verificar se as imagens são apenas IDs (strings) e buscar dados completos
+                    setLoadingImagens(true);
+                    const imagensCompletas = await Promise.all(
+                        response.data.imagens.map(async (imagem) => {
+                            if (typeof imagem === 'string') {
+                                // Se é apenas um ID, buscar os dados completos
+                                try {
+                                    const imgResponse = await api.get(`/evidencias/${id}/imagens/${imagem}`);
+                                    return imgResponse.data;
+                                } catch (error) {
+                                    console.error(`Erro ao buscar imagem ${imagem}:`, error);
+                                    return { _id: imagem, imagemUrl: null };
+                                }
+                            }
+                            return imagem;
+                        })
+                    );
+                    
+                    setEvidencia(prev => ({
+                        ...prev,
+                        imagens: imagensCompletas
+                    }));
+                    
+                    console.log('Imagens completas carregadas:', imagensCompletas);
+                    setLoadingImagens(false);
+                } else {
+                    console.log('Nenhuma imagem encontrada na evidência');
+                }
             }
         } catch (error) {
             console.error("Erro ao buscar evidência: ", error);
@@ -78,6 +124,67 @@ function EvidenciaDetalhes() {
                 toast.error('Erro ao excluir evidência');
             }
         }
+    }
+
+    // Excluir anexo usando a API
+    async function handleDeleteAnexo(anexoId) {
+        if (!anexoId) {
+            toast.error('ID do anexo não encontrado');
+            return;
+        }
+
+        if (window.confirm('Tem certeza que deseja excluir este anexo? Esta ação não pode ser desfeita.')) {
+            try {
+                // DELETE /evidencias/{evidenciaId}/imagens/{imagemId}
+                const response = await api.delete(`/evidencias/${id}/imagens/${anexoId}`);
+                
+                if (response.status === 200) {
+                    toast.success('Anexo excluído com sucesso!');
+                    fetchEvidencia(); // Recarrega a evidência
+                }
+            } catch (error) {
+                console.error('Erro ao excluir anexo:', error);
+                
+                if (error.response?.status === 404) {
+                    toast.error('Anexo não encontrado');
+                } else if (error.response?.status === 500) {
+                    toast.error('Erro interno do servidor ao excluir anexo');
+                } else if (error.response?.status === 401) {
+                    toast.error('Não autorizado para excluir este anexo');
+                } else {
+                    toast.error(`Erro ao excluir anexo: ${error.response?.data?.error || error.message}`);
+                }
+            }
+        }
+    }
+
+    // Editar anexo - abrir modal ou navegar para página de edição
+    async function handleEditAnexo(anexoId) {
+        if (!anexoId) {
+            toast.error('ID do anexo não encontrado');
+            return;
+        }
+
+        // Navegar para página específica de edição de anexo
+        navigate(`/evidencias/${id}/anexos/${anexoId}/editar${casoId ? `?casoId=${casoId}` : ''}`);
+    }
+
+    // Função para buscar dados de um anexo específico
+    async function fetchAnexoById(anexoId) {
+        try {
+            const response = await api.get(`/evidencias/${id}/imagens/${anexoId}`);
+            if (response.status === 200) {
+                return response.data;
+            }
+        } catch (error) {
+            console.error(`Erro ao buscar anexo ${anexoId}:`, error);
+            return null;
+        }
+    }
+
+    // Navegar para página de criação de anexo
+    function handleCreateAnexo() {
+        navigate(`/evidencias/${id}/anexos${casoId ? `?casoId=${casoId}` : ''}`);
     }
 
     const getTipoEvidenciaIcon = (tipo) => {
@@ -255,94 +362,104 @@ function EvidenciaDetalhes() {
                 </div>
 
                 {/* Anexos */}
-                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                        <FaFileAlt className="text-blue-600" />
-                        Anexos
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* Imagens */}
-                        {evidencia.imagens && evidencia.imagens.length > 0 && (
-                            <div className="bg-gray-50 p-4 rounded-lg border">
-                                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                    <FaCamera className="text-blue-600" />
-                                    Imagens ({evidencia.imagens.length})
-                                </h4>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {evidencia.imagens.slice(0, 4).map((imagem, index) => (
-                                        <img
-                                            key={index}
-                                            src={imagem.url || imagem}
-                                            alt={`Imagem ${index + 1}`}
-                                            className="w-full h-20 object-cover rounded"
-                                        />
-                                    ))}
-                                    {evidencia.imagens.length > 4 && (
-                                        <div className="w-full h-20 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-                                            +{evidencia.imagens.length - 4} mais
+                {evidencia.imagens && evidencia.imagens.length > 0 ? (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <div className="flex justify-between items-start mb-6">
+                            <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                                <FaFileAlt className="text-blue-600" />
+                                Anexos ({evidencia.imagens.length})
+                                {loadingImagens && (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                )}
+                            </h3>
+                            <button
+                                onClick={handleCreateAnexo}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
+                            >
+                                <FaPlus />
+                                Adicionar Anexo
+                            </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {evidencia.imagens.map((anexo, index) => (
+                                <div key={anexo._id} className="bg-gray-50 p-4 rounded-lg border">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex-1">
+                                            <h4 className="font-semibold text-gray-800">Anexo {index + 1}</h4>
+                                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                                ID: {anexo._id.slice(-8)}
+                                            </span>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Textos */}
-                        {evidencia.textos && evidencia.textos.length > 0 && (
-                            <div className="bg-gray-50 p-4 rounded-lg border">
-                                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                    <FaFileAlt className="text-green-600" />
-                                    Textos ({evidencia.textos.length})
-                                </h4>
-                                <div className="space-y-2">
-                                    {evidencia.textos.slice(0, 3).map((texto, index) => (
-                                        <div key={index} className="p-2 bg-white rounded text-sm">
-                                            <p className="text-gray-700 truncate">
-                                                {texto.conteudo || texto}
+                                        <div className="flex gap-1 sm:gap-2">
+                                            {anexo.imagemUrl && (
+                                                <button
+                                                    onClick={() => window.open(anexo.imagemUrl, '_blank')}
+                                                    className="p-2 border-2 border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 transition-all duration-200 rounded-md flex items-center justify-center"
+                                                    title="Visualizar anexo"
+                                                >
+                                                    <FaFileAlt size={14} />
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleEditAnexo(anexo._id)}
+                                                className="p-2 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 transition-all duration-200 rounded-md flex items-center justify-center"
+                                                title="Editar anexo"
+                                            >
+                                                <FaEdit size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteAnexo(anexo._id)}
+                                                className="p-2 border-2 border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600 transition-all duration-200 rounded-md flex items-center justify-center"
+                                                title="Excluir anexo"
+                                            >
+                                                <FaTrash size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {anexo.createdAt && (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Criado em:</strong> {new Intl.DateTimeFormat('pt-BR', { 
+                                                    dateStyle: 'short', 
+                                                    timeStyle: 'short' 
+                                                }).format(new Date(anexo.createdAt))}
                                             </p>
-                                        </div>
-                                    ))}
-                                    {evidencia.textos.length > 3 && (
-                                        <p className="text-gray-500 text-sm">
-                                            +{evidencia.textos.length - 3} mais textos
-                                        </p>
-                                    )}
+                                        )}
+                                        {anexo.updatedAt && anexo.updatedAt !== anexo.createdAt && (
+                                            <p className="text-sm text-gray-600">
+                                                <strong>Atualizado em:</strong> {new Intl.DateTimeFormat('pt-BR', { 
+                                                    dateStyle: 'short', 
+                                                    timeStyle: 'short' 
+                                                }).format(new Date(anexo.updatedAt))}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-
-                        {/* Laudo */}
-                        {evidencia.laudo && (
-                            <div className="bg-gray-50 p-4 rounded-lg border">
-                                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                    <FaFileAlt className="text-purple-600" />
-                                    Laudo
-                                </h4>
-                                <div className="p-3 bg-white rounded">
-                                    <p className="text-sm text-gray-700 line-clamp-3">
-                                        {evidencia.laudo.conteudo || evidencia.laudo}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Mensagem quando não há anexos */}
-                        {(!evidencia.imagens || evidencia.imagens.length === 0) && 
-                         (!evidencia.textos || evidencia.textos.length === 0) && 
-                         !evidencia.laudo && (
-                            <div className="col-span-full text-center py-8">
-                                <p className="text-gray-600 mb-4">Nenhum anexo encontrado para esta evidência.</p>
-                                <button
-                                    onClick={() => navigate(`/evidencias/editar/${id}`)}
-                                    className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center gap-2 mx-auto"
-                                >
-                                    <FaEdit />
-                                    Adicionar Anexos
-                                </button>
-                            </div>
-                        )}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="bg-white rounded-lg shadow-md p-6">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                            <FaFileAlt className="text-blue-600" />
+                            Anexos
+                            {loadingImagens && (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                            )}
+                        </h3>
+                        <div className="text-center py-8">
+                            <p className="text-gray-600 mb-4">Nenhum anexo encontrado para esta evidência.</p>
+                            <button
+                                onClick={handleCreateAnexo}
+                                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 mx-auto"
+                            >
+                                <FaPlus />
+                                Adicionar Anexo
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </PlataformContainer>
     );
