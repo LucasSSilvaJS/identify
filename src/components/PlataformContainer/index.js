@@ -3,7 +3,6 @@ import { LuFilter, LuUserPlus } from "react-icons/lu";
 import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
 import { MdOutlineHome } from "react-icons/md";
-import { IoPerson } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useContext } from "react";
@@ -84,10 +83,6 @@ function PlataformContainer({ children, search = "", setSearch, showStatusSelect
                         <Link to="/home" className="flex items-center justify-center gap-1 bg-lightbeige rounded-lg p-2 flex-col sm:h-20 h-16">
                             <MdOutlineHome className="text-darkblue sm:text-4xl text-3xl" />
                             <p className="text-darkblue sm:text-base text-sm">Home</p>
-                        </Link>
-                        <Link to="/perfil" className="flex items-center justify-center gap-1 bg-lightbeige rounded-lg p-2 flex-col sm:h-20 h-16">
-                            <IoPerson className="text-darkblue sm:text-2xl text-xl" />
-                            <p className="text-darkblue sm:text-base text-sm">Perfil</p>
                         </Link>
                     </aside>
                     <div className="flex-1">
