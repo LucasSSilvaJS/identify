@@ -68,23 +68,6 @@ function CasoDetalhes() {
         }
     }
 
-    async function handleDeleteVitima(vitimaId) {
-        if (window.confirm('Tem certeza que deseja excluir esta vítima? Esta ação não pode ser desfeita.')) {
-            try {
-                const response = await api.delete(`/vitimas/${vitimaId}`, {
-                    data: { idCaso: id }
-                });
-                if (response.status === 200) {
-                    toast.success('Vítima excluída com sucesso!');
-                    fetchCaso(); // Recarrega os dados do caso
-                }
-            } catch (error) {
-                console.error('Erro ao excluir vítima:', error);
-                toast.error('Erro ao excluir vítima');
-            }
-        }
-    }
-
     async function handleDeleteRelatorio(relatorioId) {
         if (window.confirm('Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita.')) {
             try {
@@ -98,23 +81,6 @@ function CasoDetalhes() {
             } catch (error) {
                 console.error('Erro ao excluir relatório:', error);
                 toast.error('Erro ao excluir relatório');
-            }
-        }
-    }
-
-    async function handleDeleteEvidencia(evidenciaId) {
-        if (window.confirm('Tem certeza que deseja excluir esta evidência? Esta ação não pode ser desfeita.')) {
-            try {
-                const response = await api.delete(`/evidencias/${evidenciaId}`, {
-                    data: { userId: user.id, casoId: id }
-                });
-                if (response.status === 200) {
-                    toast.success('Evidência excluída com sucesso!');
-                    fetchCaso(); // Recarrega os dados do caso
-                }
-            } catch (error) {
-                console.error('Erro ao excluir evidência:', error);
-                toast.error('Erro ao excluir evidência');
             }
         }
     }

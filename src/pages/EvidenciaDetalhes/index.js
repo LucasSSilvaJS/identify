@@ -252,19 +252,6 @@ function EvidenciaDetalhes() {
         navigate(`/evidencias/${id}/anexos/${anexoId}/editar${casoId ? `?casoId=${casoId}` : ''}`);
     }
 
-    // Função para buscar dados de um anexo específico
-    async function fetchAnexoById(anexoId) {
-        try {
-            const response = await api.get(`/evidencias/${id}/imagens/${anexoId}`);
-            if (response.status === 200) {
-                return response.data;
-            }
-        } catch (error) {
-            console.error(`Erro ao buscar anexo ${anexoId}:`, error);
-            return null;
-        }
-    }
-
     // Navegar para página de criação de anexo
     function handleCreateAnexo() {
         navigate(`/evidencias/${id}/anexos${casoId ? `?casoId=${casoId}` : ''}`);
@@ -847,7 +834,7 @@ function EvidenciaDetalhes() {
                                 )}
                                 {laudo.peritoResponsavel && (
                                     <p className="text-sm text-gray-600">
-                                        <strong>Perito Responsável:</strong> {laudo.peritoResponsavel.username || laudo.peritoResponsavel.email || 'Não informado'}
+                                        <strong>ID do Perito Responsável:</strong> {laudo.peritoResponsavel || 'Não informado'}
                                     </p>
                                 )}
                             </div>
