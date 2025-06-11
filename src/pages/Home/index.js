@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import PlataformContainer from "../../components/PlataformContainer";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import StatCard from "../../components/StatCard";
@@ -14,10 +14,8 @@ import {
     FaSpinner,
     FaSync
 } from "react-icons/fa";
-import { AuthContext } from "../../contexts/AuthContext";
 
 function Home() {
-    const { authToken, user } = useContext(AuthContext);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const [dashboardData, setDashboardData] = useState({
@@ -41,13 +39,6 @@ function Home() {
         { name: 'Em Andamento', value: dashboardData.estatisticasGerais.casosPorStatus.emAndamento, color: '#2563EB' },
         { name: 'Finalizados', value: dashboardData.estatisticasGerais.casosPorStatus.finalizados, color: '#059669' },
         { name: 'Arquivados', value: dashboardData.estatisticasGerais.casosPorStatus.arquivados, color: '#DC2626' },
-    ];
-
-    const vitimasPorEtniaData = [
-        { name: 'Preto', value: dashboardData.estatisticasVitimas.porEtnia.preto, color: '#2C3E50' },
-        { name: 'Pardo', value: dashboardData.estatisticasVitimas.porEtnia.pardo, color: '#8B4513' },
-        { name: 'Indígena', value: dashboardData.estatisticasVitimas.porEtnia.indigena, color: '#CD853F' },
-        { name: 'Amarelo', value: dashboardData.estatisticasVitimas.porEtnia.amarelo, color: '#FFD700' },
     ];
 
     const mesesData = dashboardData.casosPorMes.map(item => ({
@@ -207,6 +198,52 @@ function Home() {
                                     <Bar dataKey="quantidade" fill="#3B82F6" />
                                 </BarChart>
                             </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Distribuição de Casos por Status */}
+                <div className="bg-white rounded-lg p-6 border-2 border-gray-200 shadow-sm">
+                    <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                        <FaChartLine className="text-blue-600" />
+                        Distribuição de Casos por Status
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-blue-800 font-semibold text-lg">Em Andamento</p>
+                                    <p className="text-blue-600 text-sm">Casos ativos</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-blue-800 text-3xl font-bold">{dashboardData.estatisticasGerais.casosPorStatus.emAndamento}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-green-800 font-semibold text-lg">Finalizados</p>
+                                    <p className="text-green-600 text-sm">Casos concluídos</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-green-800 text-3xl font-bold">{dashboardData.estatisticasGerais.casosPorStatus.finalizados}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-red-800 font-semibold text-lg">Arquivados</p>
+                                    <p className="text-red-600 text-sm">Casos arquivados</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-red-800 text-3xl font-bold">{dashboardData.estatisticasGerais.casosPorStatus.arquivados}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

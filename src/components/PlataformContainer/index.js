@@ -1,5 +1,5 @@
 import logo from "../../assets/logo.svg";
-import { LuFilter, LuUserPlus } from "react-icons/lu";
+import { LuFilter } from "react-icons/lu";
 import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
 import { MdOutlineHome } from "react-icons/md";
@@ -30,9 +30,6 @@ function PlataformContainer({ children, search = "", setSearch, showStatusSelect
     return (
         <div className="h-screen bg-mediumbeige p-4">
             <div className="mx-auto w-full max-w-screen-lg relative">
-                {user.cargo === "admin" && <Link to={'/cadastro'} className="fixed bottom-4 right-4 w-16 h-16 flex items-center justify-center gap-2 rounded-full p-4 shadow-lgmediumbeige bg-darkblue">
-                    <LuUserPlus size={24} className="text-mediumbeige"/>
-                </Link>}
                 <header className="flex items-center justify-between w-full sm:gap-16 sm:flex-row flex-col gap-4 rounded-lg p-4 shadow-lg border border-darkblue bg-darkbeige">
                     <div className="flex items-center justify-between w-full sm:w-auto">
                         <img src={logo} alt="logo" className="w-28" />

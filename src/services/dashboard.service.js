@@ -11,8 +11,36 @@ export const getDashboardStats = async (filtros = {}) => {
             }
         });
 
-        const response = await api.get(`/dashboard/todas-estatisticas?${params.toString()}`);
-        return response.data;
+        const response = await api.get(`/dashboard/estatisticas-gerais?${params.toString()}`);
+        
+        // Estruturar os dados no formato esperado pela tela
+        const data = response.data;
+        const dashboardData = {
+            estatisticasGerais: {
+                totalCasos: data.totalCasos || 0,
+                casosAtivos: data.casosPorStatus?.['Em andamento'] || 0,
+                casosPorStatus: {
+                    emAndamento: data.casosPorStatus?.['Em andamento'] || 0,
+                    finalizados: data.casosPorStatus?.['Finalizado'] || 0,
+                    arquivados: data.casosPorStatus?.['Arquivado'] || 0
+                }
+            },
+            estatisticasEvidencias: {
+                totalEvidencias: data.totalEvidencias || 0
+            },
+            estatisticasLaudos: {
+                totalLaudos: 0 // Será calculado se necessário
+            },
+            estatisticasVitimas: {
+                totalVitimas: data.totalVitimas || 0,
+                porGenero: { masculino: 0, feminino: 0 },
+                porEtnia: { preto: 0, pardo: 0, indigena: 0, amarelo: 0 },
+                porIdade: {}
+            },
+            casosPorMes: data.casosPorMes || []
+        };
+
+        return dashboardData;
     } catch (error) {
         console.error("Erro ao buscar estatísticas do dashboard: ", error);
         throw error;
