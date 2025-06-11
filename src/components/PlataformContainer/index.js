@@ -4,7 +4,7 @@ import { GoFileDirectory } from "react-icons/go";
 import { BsFillFileEarmarkPlusFill } from "react-icons/bs";
 import { MdOutlineHome } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
-import { FaSignOutAlt } from "react-icons/fa";
+import { FaSignOutAlt, FaUsers } from "react-icons/fa";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { IoMdCloseCircleOutline } from "react-icons/io";
@@ -84,6 +84,12 @@ function PlataformContainer({ children, search = "", setSearch, showStatusSelect
                             <MdOutlineHome className="text-darkblue sm:text-4xl text-3xl" />
                             <p className="text-darkblue sm:text-base text-sm">Home</p>
                         </Link>
+                        {user.cargo === "admin" && (
+                            <Link to="/admin/usuarios" className="flex items-center justify-center gap-1 bg-lightbeige rounded-lg p-2 flex-col sm:h-20 h-16">
+                                <FaUsers className="text-darkblue sm:text-2xl text-xl" />
+                                <p className="text-darkblue sm:text-base text-sm">Usuários</p>
+                            </Link>
+                        )}
                     </aside>
                     <div className="flex-1">
                         {children}

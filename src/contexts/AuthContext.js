@@ -36,6 +36,9 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem("token", user.token);
       localStorage.setItem("user", JSON.stringify(userData));
+      
+      // Retorna os dados do usuário para permitir redirecionamento baseado no cargo
+      return userData;
     } catch (error) {
       console.error("Erro na autenticação:", error);
       // Re-lança o erro para que o componente de login possa tratá-lo

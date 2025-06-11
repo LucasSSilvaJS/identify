@@ -140,7 +140,7 @@ function NewLaudo() {
                 <form className="w-full flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Descrição do Laudo *</label>
-                        <textarea
+                        <textarea 
                             value={descricao}
                             onChange={(e) => setDescricao(e.target.value)}
                             className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none h-96 resize-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
@@ -152,9 +152,9 @@ function NewLaudo() {
 
                     <div className="flex flex-col gap-2">
                         <label className="text-darkblue font-bold text-sm">Conclusão do Laudo *</label>
-                        <textarea
+                        <textarea 
                             value={conclusao}
-                            onChange={(e) => setConclusao(e.target.value)}
+                            onChange={(e) => setConclusao(e.target.value)} 
                             className="w-full px-4 py-2 rounded-lg placeholder:text-darkblue bg-lightbeige text-darkblue border border-darkblue outline-none h-48 resize-none hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                             placeholder="Digite a conclusão do laudo..."
                             disabled={isLoading}
@@ -174,8 +174,8 @@ function NewLaudo() {
                                 }
                             }}
                             className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
-                            disabled={isLoading}
-                        >
+                        disabled={isLoading}
+                    >
                             Cancelar
                         </button>
                         <button
@@ -183,7 +183,7 @@ function NewLaudo() {
                             onClick={laudoId ? handleEdit : handleSubmit}
                             disabled={isLoading || (!descricao.trim() && !conclusao.trim())}
                             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
-                        >
+                    >
                             {isLoading ? 'Salvando...' : (laudoId ? 'Atualizar Laudo' : 'Criar Laudo')}
                         </button>
                     </div>

@@ -16,8 +16,10 @@ import NewRelatorio from "../pages/NewRelatorio";
 import VitimaDetalhes from "../pages/VitimaDetalhes";
 import NewOdontograma from "../pages/NewOdontograma";
 import EditOdontograma from "../pages/EditOdontograma";
+import AdminUsuarios from "../pages/AdminUsuarios";
 import { PrivateRoute } from "../contexts/PrivateRoute";
 import { PublicRoute } from "../contexts/PublicRoute";
+import { AdminRoute } from "../contexts/AdminRoute";
 
 function AppRoutes() {
   return (
@@ -36,6 +38,11 @@ function AppRoutes() {
         <PrivateRoute>
           <Home />
         </PrivateRoute>
+      } />
+      <Route path="/admin/usuarios" element={
+        <AdminRoute>
+          <AdminUsuarios />
+        </AdminRoute>
       } />
       <Route path="/casos/novo" element={
         <PrivateRoute>

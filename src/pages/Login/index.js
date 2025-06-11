@@ -21,10 +21,15 @@ function Login() {
 
         setIsLoading(true);
         try {
-            await login(email, password);
+            const userData = await login(email, password);
             toast.success("Login realizado com sucesso");
-            // Redireciona para a página home após login bem-sucedido
-            navigate("/home");
+            
+            // Redireciona baseado no cargo do usuário
+            if (userData.cargo === 'admin') {
+                navigate("/admin/usuarios");
+            } else {
+                navigate("/home");
+            }
         } catch (error) {
             console.error("Erro ao realizar login:", error);
             

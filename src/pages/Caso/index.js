@@ -155,13 +155,13 @@ function Caso() {
                         </div>
                         
                         {casos.map((caso) => (
-                            <CasoArticle
-                                key={caso._id}
-                                id={caso._id}
-                                titulo={caso.titulo}
-                                descricao={caso.descricao}
-                                status={caso.status}
-                            />
+                        <CasoArticle
+                            key={caso._id}
+                            id={caso._id}
+                            titulo={caso.titulo}
+                            descricao={caso.descricao}
+                            status={caso.status}
+                        />
                         ))}
 
                         {/* Controles de paginação */}
